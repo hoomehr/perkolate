@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Perkolate{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Welcome, {{ user.first_name }}!</h2>
+        <p class="text-muted">Here's a summary of your events and targets.</p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{% url 'event_create' %}" class="btn btn-primary me-2">
+            <i class="fas fa-plus"></i> New Event
+        </a>
+        <a href="{% url 'target_create' %}" class="btn btn-success me-2">
+            <i class="fas fa-plus"></i> New Target
+        </a>
+        <a href="{% url 'note_create' %}" class="btn btn-info">
+            <i class="fas fa-plus"></i> New Note
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Events Section -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-calendar-alt"></i> Recent Events</h4>
+                <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-light">View All</a>
+            </div>
+            <div class="card-body">
+                {% if events %}
+                <div class="list-group">
+                    {% for event in events %}
+                    <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ event.title }}</h5>
+                            <small>{{ event.start_date|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ event.description|truncatechars:100 }}</p>
+                        <small class="d-flex justify-content-between">
+                            <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
+                            <span>Created by: {{ event.created_by.username }}</span>
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No events found. <a href="{% url 'event_create' %}">Create your first event!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Targets Section -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-bullseye"></i> Recent Targets</h4>
+                <a href="{% url 'target_list' %}" class="btn btn-sm btn-outline-light">View All</a>
+            </div>
+            <div class="card-body">
+                {% if targets %}
+                <div class="list-group">
+                    {% for target in targets %}
+                    <a href="{% url 'target_detail' target.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ target.name }}</h5>
+                            <small>
+                                {% if target.due_date %}
+                                Due: {{ target.due_date|date:"M d, Y" }}
+                                {% else %}
+                                No due date
+                                {% endif %}
+                            </small>
+                        </div>
+                        <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
+                        <small class="d-flex justify-content-between">
+                            <span>
+                                <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
+                                <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
+                            </span>
+                            <span>
+                                {% if target.assignee %}
+                                Assigned to: {{ target.assignee.username }}
+                                {% else %}
+                                Unassigned
+                                {% endif %}
+                            </span>
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No targets found. <a href="{% url 'target_create' %}">Create your first target!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notes Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-sticky-note"></i> Recent Notes</h4>
+                <a href="{% url 'note_board' %}" class="btn btn-sm btn-outline-light">View All</a>
+            </div>
+            <div class="card-body">
+                {% if notes %}
+                <div class="row">
+                    {% for note in notes %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">{{ note.title }}</h5>
+                                <small>{{ note.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ note.content|truncatechars:100 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-success me-1">
+                                            <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                        </span>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">By: {{ note.created_by.username }}</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent text-center">
+                                <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">No notes found. <a href="{% url 'note_create' %}">Create your first note!</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

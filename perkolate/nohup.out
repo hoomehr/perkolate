@@ -1,0 +1,78 @@
+Watching for file changes with StatReloader
+[17/Apr/2025 04:59:00] "HEAD / HTTP/1.1" 302 0
+[17/Apr/2025 04:59:24] "POST /accounts/login/?next=/dashboard/ HTTP/1.1" 302 0
+[17/Apr/2025 04:59:24] "GET /dashboard/ HTTP/1.1" 200 15691
+[17/Apr/2025 04:59:33] "GET / HTTP/1.1" 302 0
+[17/Apr/2025 04:59:33] "GET /dashboard/ HTTP/1.1" 200 15388
+Internal Server Error: /dashboard/targets/3/
+Traceback (most recent call last):
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/hoomehr/perkolate/perkolate/events/views.py", line 127, in target_detail
+    return render(request, 'events/target_detail.html', {'target': target})
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: events/target_detail.html
+[17/Apr/2025 04:59:36] "GET /dashboard/targets/3/ HTTP/1.1" 500 84989
+Internal Server Error: /dashboard/events/3/
+Traceback (most recent call last):
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/hoomehr/perkolate/perkolate/events/views.py", line 49, in event_detail
+    return render(request, 'events/event_detail.html', {'event': event})
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/shortcuts.py", line 24, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/template/loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/template/loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: events/event_detail.html
+[17/Apr/2025 04:59:38] "GET /dashboard/events/3/ HTTP/1.1" 500 84929
+/Users/hoomehr/perkolate/perkolate/events/models.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+April 17, 2025 - 04:58:54
+Django version 4.2.20, using settings 'perkolate.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+Traceback (most recent call last):
+  File "/Users/hoomehr/perkolate/perkolate/manage.py", line 22, in <module>
+    main()
+  File "/Users/hoomehr/perkolate/perkolate/manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/commands/runserver.py", line 74, in execute
+    super().execute(*args, **options)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/base.py", line 458, in execute
+    output = self.handle(*args, **options)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/commands/runserver.py", line 111, in handle
+    self.run(**options)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/core/management/commands/runserver.py", line 118, in run
+    autoreload.run_with_reloader(self.inner_run, **options)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/utils/autoreload.py", line 671, in run_with_reloader
+    start_django(reloader, main_func, *args, **kwargs)
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/utils/autoreload.py", line 650, in start_django
+    ensure_echo_on()
+  File "/Users/hoomehr/perkolate/perkolate_env/lib/python3.9/site-packages/django/utils/autoreload.py", line 95, in ensure_echo_on
+    if not termios or not sys.stdin.isatty():
+AttributeError: 'NoneType' object has no attribute 'isatty'
