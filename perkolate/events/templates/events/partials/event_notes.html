@@ -1,0 +1,29 @@
+<div id="event-notes-{{ event.id }}" class="event-notes">
+    {% if notes %}
+        <h4>Notes ({{ notes|length }})</h4>
+        <div class="notes-list">
+            {% for note in notes %}
+                <div class="note-card" id="note-{{ note.id }}">
+                    <div class="note-header">
+                        <span class="note-author">{{ note.author.username }}</span>
+                        <span class="note-date">{{ note.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="note-content">
+                        {{ note.content }}
+                    </div>
+                    <div class="note-footer">
+                        {% include "events/partials/note_votes.html" with note=note upvotes=note.upvotes downvotes=note.downvotes user_vote=user_votes|get_item:note.id %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No notes yet.</p>
+    {% endif %}
+    
+    <form class="note-form" hx-post="{% url 'htmx_add_note' pk=event.id %}" hx-target="#event-notes-{{ event.id }}" hx-swap="outerHTML">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Add a note..." required></textarea>
+        <button type="submit" class="btn btn-primary">Add Note</button>
+    </form>
+</div> 

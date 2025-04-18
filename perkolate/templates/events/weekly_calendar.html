@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load event_filters %}
+
+{% block title %}Weekly Calendar | Perkolate{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-container {
+        overflow-x: auto;
+        width: 100%;
+    }
+    
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: 50px repeat(7, 1fr);
+        min-width: 1000px;
+        height: 1440px; /* 24 hours * 60px per hour */
+        position: relative;
+        border: 1px solid var(--border-color);
+        background-color: var(--light-bg);
+    }
+    
+    .time-labels {
+        grid-column: 1;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--border-color);
+    }
+    
+    .time-label {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.8rem;
+        color: var(--secondary-text);
+    }
+    
+    .day-column {
+        border-right: 1px solid var(--border-color);
+        position: relative;
+    }
+    
+    .day-header {
+        position: sticky;
+        top: 0;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--fuchsia);
+        color: white;
+        border-bottom: 1px solid var(--border-color);
+        z-index: 10;
+    }
+    
+    .day-name {
+        font-weight: bold;
+        font-size: 1rem;
+    }
+    
+    .day-date {
+        font-size: 0.8rem;
+    }
+    
+    .hour-line {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: var(--border-color);
+    }
+    
+    .event {
+        position: absolute;
+        left: 5px;
+        right: 5px;
+        padding: 5px;
+        color: white;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        overflow: hidden;
+        cursor: pointer;
+        z-index: 5;
+        transition: all 0.2s ease;
+    }
+    
+    .event:hover {
+        transform: scale(1.02);
+        z-index: 10;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Event colors using the new palette */
+    .event:nth-child(4n+1) {
+        background-color: var(--rose-red);
+    }
+    
+    .event:nth-child(4n+2) {
+        background-color: var(--fuchsia);
+    }
+    
+    .event:nth-child(4n+3) {
+        background-color: var(--purple-haze);
+    }
+    
+    .event:nth-child(4n+4) {
+        background-color: var(--indigo);
+    }
+    
+    .event-title {
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .event-time {
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+    
+    .current-time-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background-color: var(--indigo);
+        z-index: 20;
+    }
+    
+    .current-time-indicator {
+        position: absolute;
+        left: -10px;
+        top: -5px;
+        width: 10px;
+        height: 10px;
+        background-color: var(--indigo);
+        border-radius: 50%;
+    }
+    
+    .modal-content {
+        max-width: 600px;
+    }
+    
+    @media (max-width: 768px) {
+        .calendar-grid {
+            min-width: 700px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Weekly Calendar</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-sm btn-outline-primary" id="prev-week">Previous Week</button>
+                <h5 class="m-0" id="week-range"></h5>
+                <button class="btn btn-sm btn-outline-primary" id="next-week">Next Week</button>
+            </div>
+            <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-sm btn-primary" id="today-btn">Today</button>
+                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                    <i class="bi bi-plus-circle"></i> Add Event
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="calendar-container">
+        <div class="calendar-grid" id="calendar-grid">
+            <div class="time-labels">
+                <div class="day-header"></div>
+                {% for hour in hours %}
+                <div class="time-label">{{ hour }}:00</div>
+                {% endfor %}
+            </div>
+            
+            {% for day_idx, day in days.items %}
+            <div class="day-column" data-day-idx="{{ day_idx }}" data-date="{{ day|date:'Y-m-d' }}">
+                <div class="day-header">
+                    <div class="day-name">{{ day|date:'D' }}</div>
+                    <div class="day-date">{{ day|date:'M d' }}</div>
+                </div>
+                
+                {% for hour in hours %}
+                <div class="hour-line" style="top: {{ hour|hours_to_pixels }}px;"></div>
+                {% endfor %}
+                
+                <!-- Events will be loaded here via JavaScript -->
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailsModalLabel">Event Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="event-details-content">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" class="btn btn-primary" id="edit-event-btn">Edit Event</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Event Modal -->
+<div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createEventModalLabel">Create New Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'event_create' %}" method="post" id="create-event-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="id_title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="id_description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="id_start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="id_start_date" name="start_date" required>
+                        </div>
+                        <div class="col">
+                            <label for="id_start_time" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="id_start_time" name="start_time" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="id_end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="id_end_date" name="end_date" required>
+                        </div>
+                        <div class="col">
+                            <label for="id_end_time" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="id_end_time" name="end_time" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="id_location" name="location">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submit-event">Create Event</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Current date tracking
+        let currentWeekStart = new Date('{{ days.0|date:"Y-m-d" }}');
+        updateWeekRange();
+        
+        // Navigation buttons
+        document.getElementById('prev-week').addEventListener('click', function() {
+            navigateWeek(-7);
+        });
+        
+        document.getElementById('next-week').addEventListener('click', function() {
+            navigateWeek(7);
+        });
+        
+        document.getElementById('today-btn').addEventListener('click', function() {
+            window.location.href = "{% url 'weekly_calendar' %}";
+        });
+        
+        // Form submission
+        document.getElementById('submit-event').addEventListener('click', function() {
+            document.getElementById('create-event-form').submit();
+        });
+        
+        // Initial data load
+        loadEvents();
+        
+        // Set current time indicator
+        setCurrentTimeIndicator();
+        setInterval(setCurrentTimeIndicator, 60000); // Update every minute
+        
+        // Handle event clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.event')) {
+                const eventId = e.target.closest('.event').dataset.eventId;
+                showEventDetails(eventId);
+            }
+        });
+        
+        // Functions
+        function navigateWeek(days) {
+            const newDate = new Date(currentWeekStart);
+            newDate.setDate(newDate.getDate() + days);
+            const formattedDate = formatDate(newDate);
+            window.location.href = `{% url 'weekly_calendar' %}?date=${formattedDate}`;
+        }
+        
+        function updateWeekRange() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const startMonth = currentWeekStart.toLocaleString('default', { month: 'short' });
+            const endMonth = weekEnd.toLocaleString('default', { month: 'short' });
+            
+            let rangeText = '';
+            if (startMonth === endMonth) {
+                rangeText = `${startMonth} ${currentWeekStart.getDate()} - ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+            } else {
+                rangeText = `${startMonth} ${currentWeekStart.getDate()} - ${endMonth} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
+            }
+            
+            document.getElementById('week-range').textContent = rangeText;
+        }
+        
+        function loadEvents() {
+            const startDate = formatDate(currentWeekStart);
+            const endDate = formatDate(new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000));
+            
+            fetch(`{% url 'api_events' %}?start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    renderEvents(data.events);
+                })
+                .catch(error => console.error('Error loading events:', error));
+        }
+        
+        function renderEvents(events) {
+            // Clear existing events
+            document.querySelectorAll('.event').forEach(el => el.remove());
+            
+            events.forEach(event => {
+                const eventDate = new Date(event.start_date);
+                const dayIdx = getDayIndex(eventDate);
+                const dayColumn = document.querySelector(`.day-column[data-day-idx="${dayIdx}"]`);
+                
+                if (dayColumn) {
+                    const eventEl = document.createElement('div');
+                    eventEl.className = 'event';
+                    eventEl.dataset.eventId = event.id;
+                    eventEl.style.top = `${event.top_position}px`;
+                    eventEl.style.height = `${event.height}px`;
+                    
+                    // Add color based on event type or status using vibrant colors
+                    const colors = ['var(--rose-red)', 'var(--fuchsia)', 'var(--purple-haze)', 'var(--indigo)'];
+                    eventEl.style.backgroundColor = colors[event.id % colors.length];
+                    
+                    eventEl.innerHTML = `
+                        <div class="event-title">${event.title}</div>
+                        <div class="event-time">${formatTime(event.start_time)} - ${formatTime(event.end_time)}</div>
+                    `;
+                    
+                    dayColumn.appendChild(eventEl);
+                }
+            });
+        }
+        
+        function setCurrentTimeIndicator() {
+            // Remove existing indicator
+            document.querySelectorAll('.current-time-line').forEach(el => el.remove());
+            
+            const now = new Date();
+            const today = now.getDay();
+            const minutes = now.getHours() * 60 + now.getMinutes();
+            const position = minutes / 60 * 60; // 60px per hour
+            
+            const dayColumn = document.querySelector(`.day-column[data-day-idx="${today}"]`);
+            if (dayColumn) {
+                const timeIndicator = document.createElement('div');
+                timeIndicator.className = 'current-time-line';
+                timeIndicator.style.top = `${position}px`;
+                
+                const indicator = document.createElement('div');
+                indicator.className = 'current-time-indicator';
+                timeIndicator.appendChild(indicator);
+                
+                dayColumn.appendChild(timeIndicator);
+                
+                // Scroll to current time if it's today
+                if (isToday(new Date(dayColumn.dataset.date))) {
+                    const scrollPosition = Math.max(0, position - 300);
+                    document.querySelector('.calendar-container').scrollTop = scrollPosition;
+                }
+            }
+        }
+        
+        function showEventDetails(eventId) {
+            const modal = new bootstrap.Modal(document.getElementById('eventDetailsModal'));
+            const contentDiv = document.getElementById('event-details-content');
+            const editBtn = document.getElementById('edit-event-btn');
+            
+            // Show loading state
+            contentDiv.innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+            
+            // Update edit button link
+            editBtn.href = `{% url 'event_update' 0 %}`.replace('0', eventId);
+            
+            // Fetch event details
+            fetch(`{% url 'api_events' %}${eventId}/`)
+                .then(response => response.json())
+                .then(event => {
+                    contentDiv.innerHTML = `
+                        <h4>${event.title}</h4>
+                        <p class="text-muted">${formatDate(new Date(event.start_date))} ${formatTime(event.start_time)} - 
+                           ${formatDate(new Date(event.end_date))} ${formatTime(event.end_time)}</p>
+                        
+                        <hr>
+                        
+                        <p><strong>Description:</strong></p>
+                        <p>${event.description || 'No description provided.'}</p>
+                        
+                        <p><strong>Location:</strong> ${event.location || 'Not specified'}</p>
+                        
+                        ${event.participants && event.participants.length > 0 ? `
+                            <p><strong>Participants:</strong></p>
+                            <ul>
+                                ${event.participants.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    `;
+                })
+                .catch(error => {
+                    contentDiv.innerHTML = `<p class="text-danger">Error loading event details: ${error.message}</p>`;
+                });
+            
+            modal.show();
+        }
+        
+        // Utility functions
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        function formatTime(timeStr) {
+            // Convert 24-hour time to 12-hour time
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours, 10);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+        
+        function getDayIndex(date) {
+            return date.getDay();
+        }
+        
+        function isToday(date) {
+            const today = new Date();
+            return today.toDateString() === date.toDateString();
+        }
+    });
+</script>
+{% endblock %} 

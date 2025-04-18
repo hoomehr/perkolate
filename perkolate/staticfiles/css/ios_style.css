@@ -1,0 +1,555 @@
+/* iOS-inspired Flat Design Theme */
+
+:root {
+  /* iOS-inspired color palette */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-indigo: #5856D6;
+  --ios-orange: #FF9500;
+  --ios-pink: #FF2D55;
+  --ios-purple: #AF52DE;
+  --ios-red: #FF3B30;
+  --ios-teal: #5AC8FA;
+  --ios-yellow: #FFCC00;
+  --ios-gray1: #8E8E93;
+  --ios-gray2: #AEAEB2;
+  --ios-gray3: #C7C7CC;
+  --ios-gray4: #D1D1D6;
+  --ios-gray5: #E5E5EA;
+  --ios-gray6: #F2F2F7;
+  
+  /* Status colors */
+  --status-planned: var(--ios-blue);
+  --status-in-progress: var(--ios-orange);
+  --status-completed: var(--ios-green);
+  --status-cancelled: var(--ios-red);
+  --status-not-started: var(--ios-gray1);
+  --status-blocked: var(--ios-red);
+  
+  /* Priority colors */
+  --priority-low: var(--ios-green);
+  --priority-medium: var(--ios-blue);
+  --priority-high: var(--ios-orange);
+  --priority-urgent: var(--ios-red);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--ios-gray6);
+  color: #000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding-top: 70px; /* Add space for fixed navbar */
+}
+
+/* Navbar styling - sticky header */
+.navbar {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: var(--ios-blue) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(0, 0, 0, 0.8) !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  background-color: var(--ios-gray6);
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+  color: var(--ios-blue) !important;
+  background-color: rgba(0, 122, 255, 0.1);
+}
+
+.navbar-dark .navbar-toggler {
+  border-color: transparent;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Card styling */
+.card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--ios-gray5);
+  font-weight: 600;
+  padding: 15px 20px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Button styling */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+.btn-primary {
+  background-color: var(--ios-blue);
+}
+
+.btn-success {
+  background-color: var(--ios-green);
+}
+
+.btn-danger {
+  background-color: var(--ios-red);
+}
+
+.btn-warning {
+  background-color: var(--ios-orange);
+  color: white;
+}
+
+.btn-info {
+  background-color: var(--ios-teal);
+  color: white;
+}
+
+.btn-outline-primary {
+  color: var(--ios-blue);
+  border: 1.5px solid var(--ios-blue);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--ios-blue);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);
+}
+
+.btn-outline-success {
+  color: var(--ios-green);
+  border: 1.5px solid var(--ios-green);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-success:hover {
+  background-color: var(--ios-green);
+  color: white;
+  box-shadow: 0 2px 4px rgba(52, 199, 89, 0.2);
+}
+
+.btn-outline-danger {
+  color: var(--ios-red);
+  border: 1.5px solid var(--ios-red);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--ios-red);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 59, 48, 0.2);
+}
+
+/* Badge styling */
+.badge {
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+.badge.bg-planned, .badge.bg-in_progress, .badge.bg-completed, 
+.badge.bg-cancelled, .badge.bg-not_started, .badge.bg-blocked,
+.badge.bg-low, .badge.bg-medium, .badge.bg-high, .badge.bg-urgent {
+  color: white;
+}
+
+.badge.bg-planned { background-color: var(--status-planned) !important; }
+.badge.bg-in_progress { background-color: var(--status-in-progress) !important; }
+.badge.bg-completed { background-color: var(--status-completed) !important; }
+.badge.bg-cancelled { background-color: var(--status-cancelled) !important; }
+.badge.bg-not_started { background-color: var(--status-not-started) !important; }
+.badge.bg-blocked { background-color: var(--status-blocked) !important; }
+
+.badge.bg-low { background-color: var(--priority-low) !important; }
+.badge.bg-medium { background-color: var(--priority-medium) !important; }
+.badge.bg-high { background-color: var(--priority-high) !important; }
+.badge.bg-urgent { background-color: var(--priority-urgent) !important; }
+
+/* Form styling */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid var(--ios-gray4);
+  padding: 12px 15px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: white;
+}
+
+.form-control:focus {
+  border-color: var(--ios-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+}
+
+.form-select {
+  border-radius: 10px;
+  border: 1px solid var(--ios-gray4);
+  padding: 12px 15px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.form-select:focus {
+  border-color: var(--ios-blue);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+}
+
+/* List group styling */
+.list-group-item {
+  border-left: none;
+  border-right: none;
+  border-color: var(--ios-gray5);
+  padding: 15px 20px;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.list-group-item:last-child {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Tab styling */
+.nav-tabs {
+  border-bottom: none;
+  margin-bottom: 15px;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 16px;
+  margin-right: 5px;
+  color: var(--ios-gray1);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav-tabs .nav-link.active {
+  background-color: var(--ios-blue);
+  color: white;
+}
+
+/* Welcome card styling */
+.welcome-card {
+  background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-indigo) 100%);
+  color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25);
+}
+
+/* Stats cards */
+.stat-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+  margin-top: 5px;
+}
+
+.stat-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+
+/* Footer styling */
+.footer {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--ios-gray1);
+  padding: 20px 0;
+  border-top: 1px solid var(--ios-gray5);
+  margin-top: auto;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 12px;
+  border: none;
+  padding: 15px 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.alert-dismissible .btn-close {
+  padding: 18px;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Vote buttons */
+.vote-buttons .btn {
+  min-width: 70px;
+}
+
+/* Progress bars */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--ios-gray5);
+  overflow: hidden;
+}
+
+.progress-bar {
+  background-color: var(--ios-blue);
+}
+
+/* Custom switch */
+.form-check-input:checked {
+  background-color: var(--ios-green);
+  border-color: var(--ios-green);
+}
+
+/* Quick action cards */
+.quick-action-card {
+  border-radius: 15px;
+  background-color: white;
+  transition: all 0.3s ease;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+.quick-action-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.quick-action-card .card-body {
+  padding: 25px 20px;
+  text-align: center;
+}
+
+/* Kanban board styling */
+.kanban-board {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.kanban-column {
+  min-width: 300px;
+  max-width: 300px;
+  margin-right: 20px;
+  background-color: var(--ios-gray6);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.kanban-column-header {
+  font-weight: 600;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--ios-gray5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kanban-note {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.kanban-note:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+.kanban-note-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.kanban-note-content {
+  color: var(--ios-gray1);
+  font-size: 0.9rem;
+}
+
+.kanban-note-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 0.8rem;
+  color: var(--ios-gray2);
+}
+
+/* Color cards for notes */
+.note-card-blue { border-left: 4px solid var(--ios-blue); }
+.note-card-green { border-left: 4px solid var(--ios-green); }
+.note-card-orange { border-left: 4px solid var(--ios-orange); }
+.note-card-purple { border-left: 4px solid var(--ios-purple); }
+.note-card-pink { border-left: 4px solid var(--ios-pink); }
+.note-card-yellow { border-left: 4px solid var(--ios-yellow); }
+.note-card-teal { border-left: 4px solid var(--ios-teal); }
+
+/* Main content padding */
+.main-content {
+  padding: 30px 0;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ios-gray1);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: var(--ios-gray3);
+}
+
+/* Custom breadcrumb */
+.ios-breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.ios-breadcrumb-item {
+  color: var(--ios-gray1);
+}
+
+.ios-breadcrumb-item.active {
+  color: var(--ios-blue);
+  font-weight: 500;
+}
+
+.ios-breadcrumb-separator {
+  margin: 0 8px;
+  color: var(--ios-gray3);
+}
+
+/* Mobile optimizations */
+@media (max-width: 767.98px) {
+  .kanban-column {
+    min-width: 250px;
+  }
+  
+  .stat-card {
+    margin-bottom: 15px;
+  }
+  
+  .welcome-card {
+    padding: 20px !important;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+}
+
+/* Add scroll indicator */
+.scroll-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--ios-blue);
+  z-index: 1040;
+  width: 0;
+  transition: width 0.1s ease;
+} 

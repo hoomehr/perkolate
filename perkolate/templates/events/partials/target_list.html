@@ -1,0 +1,57 @@
+{% for target in targets %}
+<div class="list-group-item list-group-item-action slide-in" style="animation-delay: {{ forloop.counter0|add:1|multiply:100 }}ms">
+    <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">{{ target.name }}</h5>
+        <small>
+            {% if target.due_date %}
+            Due: {{ target.due_date|date:"M d, Y" }}
+            {% else %}
+            No due date
+            {% endif %}
+        </small>
+    </div>
+    <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
+            <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
+        </div>
+        <div>
+            {% if target.assignee %}
+            <small class="text-muted me-2">Assigned to: {{ target.assignee.username }}</small>
+            {% endif %}
+            <a href="{% url 'target_detail' target.pk %}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-eye"></i> View
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% if targets.has_other_pages and is_htmx %}
+<div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+        {% if targets.has_previous %}
+        <button class="btn btn-outline-primary btn-sm" 
+                hx-get="{% url 'htmx_target_list' %}?page={{ targets.previous_page_number }}"
+                hx-target="#targets-list"
+                hx-swap="innerHTML">
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        {% endif %}
+        
+        <button class="btn btn-outline-secondary btn-sm" disabled>
+            Page {{ targets.number }} of {{ targets.paginator.num_pages }}
+        </button>
+        
+        {% if targets.has_next %}
+        <button class="btn btn-outline-primary btn-sm" 
+                hx-get="{% url 'htmx_target_list' %}?page={{ targets.next_page_number }}"
+                hx-target="#targets-list"
+                hx-swap="innerHTML">
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %} 

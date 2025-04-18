@@ -25,4 +25,21 @@ urlpatterns = [
     path('notes/<int:pk>/update/', views.note_update, name='note_update'),
     path('notes/<int:pk>/delete/', views.note_delete, name='note_delete'),
     path('notes/<int:pk>/vote/', views.note_vote, name='note_vote'),
+    
+    # Calendar Views
+    path('calendar/', views.weekly_calendar, name='weekly_calendar'),
+    
+    # API Endpoints
+    path('api/events/', views.api_events, name='api_events'),
+    path('api/events/<int:pk>/', views.api_event_detail, name='api_event_detail'),
+    
+    # HTMX Endpoints
+    path('htmx/events/', views.htmx_event_list, name='htmx_event_list'),
+    path('htmx/targets/', views.htmx_target_list, name='htmx_target_list'),
+    path('htmx/notes/', views.htmx_note_list, name='htmx_note_list'),
+    path('htmx/notes/<int:pk>/vote/', views.htmx_vote_note, name='htmx_vote_note'),
+    path('htmx/events/<int:pk>/add-note/', views.htmx_add_note, name='htmx_add_note'),
+    path('htmx/events/<int:pk>/notes/', views.htmx_get_notes, name='htmx_get_notes'),
+    path('htmx/notes/<int:note_id>/upvote/', views.htmx_note_upvote, name='htmx_note_upvote'),
+    path('htmx/notes/<int:note_id>/downvote/', views.htmx_note_downvote, name='htmx_note_downvote'),
 ] 

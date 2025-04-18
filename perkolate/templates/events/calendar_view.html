@@ -1,0 +1,288 @@
+{% load event_filters %}
+
+<div class="weekly-calendar-container">
+    <div class="calendar-header">
+        <button id="prev-week" class="btn btn-sm btn-outline-primary"><i class="bi bi-chevron-left"></i> Previous Week</button>
+        <h3 id="week-range">Week of <span id="week-start-date"></span></h3>
+        <button id="next-week" class="btn btn-sm btn-outline-primary">Next Week <i class="bi bi-chevron-right"></i></button>
+    </div>
+    
+    <div class="weekly-calendar-view">
+        <div class="time-labels">
+            <div class="day-header"></div> <!-- Empty cell for top-left corner -->
+            {% for hour in "78910111213141516171819" %}
+                <div class="time-label">{{ hour|slice:"0:1" }}{% if hour|length > 1 %}{{ hour|slice:"1:" }}{% endif %}:00</div>
+            {% endfor %}
+        </div>
+        
+        <div class="days-container">
+            {% for day_name in "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"|split:"," %}
+                <div class="day-column" data-day="{{ forloop.counter0 }}">
+                    <div class="day-header">{{ day_name }}</div>
+                    <div class="day-events-container">
+                        <div class="hour-grid">
+                            {% for hour in "78910111213141516171819" %}
+                                <div class="hour-line"></div>
+                            {% endfor %}
+                        </div>
+                        <!-- Events will be placed here dynamically -->
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="calendar-footer">
+        <button id="new-event-btn" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Event</button>
+    </div>
+</div>
+
+<style>
+    .weekly-calendar-container {
+        width: 100%;
+        margin-bottom: 30px;
+        font-family: var(--bs-font-sans-serif);
+    }
+    
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .weekly-calendar-view {
+        display: flex;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 780px; /* 13 hours × 60px */
+    }
+    
+    .time-labels {
+        width: 60px;
+        flex-shrink: 0;
+        border-right: 1px solid #ddd;
+        background-color: #f8f9fa;
+    }
+    
+    .time-label {
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #666;
+        border-top: 1px solid #eee;
+    }
+    
+    .days-container {
+        display: flex;
+        flex-grow: 1;
+    }
+    
+    .day-column {
+        flex: 1;
+        border-right: 1px solid #ddd;
+        position: relative;
+    }
+    
+    .day-column:last-child {
+        border-right: none;
+    }
+    
+    .day-header {
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .day-events-container {
+        height: calc(780px - 30px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hour-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+    }
+    
+    .hour-line {
+        height: 60px;
+        border-top: 1px solid #eee;
+    }
+    
+    .event {
+        position: absolute;
+        left: 5%;
+        width: 90%;
+        border-radius: 4px;
+        padding: 5px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-size: 0.8rem;
+        z-index: 10;
+    }
+    
+    .event:hover {
+        transform: scale(1.02);
+        z-index: 20;
+    }
+    
+    .event-title {
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .event-time {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+    
+    .event.status-open { background-color: var(--purple-haze, #BA7FB2); color: white; }
+    .event.status-in_progress { background-color: var(--fuchsia, #E534BB); color: white; }
+    .event.status-completed { background-color: var(--indigo, #6557D3); color: white; }
+    .event.status-cancelled { background-color: var(--rose-red, #C9184A); color: white; }
+    
+    .calendar-footer {
+        margin-top: 15px;
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Current week start date (Monday)
+        let currentWeekStart = getMonday(new Date());
+        
+        // Update week date range display
+        updateWeekDisplay();
+        
+        // Load events for current week
+        loadEventsForWeek(currentWeekStart);
+        
+        // Navigation buttons
+        document.getElementById('prev-week').addEventListener('click', function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekDisplay();
+            clearEvents();
+            loadEventsForWeek(currentWeekStart);
+        });
+        
+        document.getElementById('next-week').addEventListener('click', function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateWeekDisplay();
+            clearEvents();
+            loadEventsForWeek(currentWeekStart);
+        });
+        
+        // New event button
+        document.getElementById('new-event-btn').addEventListener('click', function() {
+            window.location.href = "{% url 'event_create' %}";
+        });
+        
+        // Helper function to get Monday of current week
+        function getMonday(date) {
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+            return new Date(date.setDate(diff));
+        }
+        
+        // Update week display text
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            const options = { month: 'short', day: 'numeric' };
+            const startText = currentWeekStart.toLocaleDateString('en-US', options);
+            const endText = weekEnd.toLocaleDateString('en-US', options);
+            
+            document.getElementById('week-start-date').textContent = `${startText} - ${endText}`;
+        }
+        
+        // Clear all events from calendar
+        function clearEvents() {
+            document.querySelectorAll('.event').forEach(el => el.remove());
+        }
+        
+        // Load events for the given week
+        function loadEventsForWeek(weekStart) {
+            // In a real app, this would be an AJAX call to fetch events for the week
+            // For demonstration, we'll use the events passed from the Django view
+            const events = {{ events_json|safe }};
+            
+            events.forEach(event => {
+                renderEvent(event);
+            });
+        }
+        
+        // Render a single event on the calendar
+        function renderEvent(event) {
+            // Parse event start date and time
+            const eventDate = new Date(event.start_date);
+            // Get day of week (0 = Monday in our system)
+            const dayOfWeek = (eventDate.getDay() + 6) % 7; // Convert from Sun-Sat to Mon-Sun
+            
+            // Check if event is in current week
+            const weekStart = new Date(currentWeekStart);
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            if (eventDate < weekStart || eventDate > weekEnd) {
+                return; // Event not in current week
+            }
+            
+            // Find the correct day column
+            const dayColumn = document.querySelector(`.day-column[data-day="${dayOfWeek}"] .day-events-container`);
+            
+            // Create event element
+            const eventEl = document.createElement('div');
+            eventEl.className = `event status-${event.status}`;
+            
+            // Position event based on time
+            const startHours = eventDate.getHours();
+            const startMinutes = eventDate.getMinutes();
+            
+            // Calculate duration in hours (default to 1 hour if not specified)
+            const duration = event.duration || 1;
+            
+            // Position and size event element using custom filters
+            const topPosition = (startHours * 60 + startMinutes) / 60 * 60;
+            eventEl.style.top = `${topPosition - 420}px`; // Subtract 7 hours (420 minutes) for offset
+            eventEl.style.height = `${duration * 60}px`;
+            
+            // Set event content
+            eventEl.innerHTML = `
+                <div class="event-title">${event.title}</div>
+                <div class="event-time">${formatTime(eventDate)} (${duration}h)</div>
+            `;
+            
+            // Add click handler to navigate to event detail
+            eventEl.addEventListener('click', function() {
+                window.location.href = `/events/event/${event.id}/`;
+            });
+            
+            // Add event to calendar
+            dayColumn.appendChild(eventEl);
+        }
+        
+        // Format time as HH:MM AM/PM
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        }
+    });
+</script> 

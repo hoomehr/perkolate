@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load event_filters %}
+
+{% block title %}{{ target.name }} | Perkolate{% endblock %}
+
+{% block content %}
+<!-- Header with Breadcrumb -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">{{ target.name }}</h1>
+        <div class="ios-breadcrumb">
+            <a href="{% url 'dashboard' %}" class="ios-breadcrumb-item">Dashboard</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <a href="{% url 'target_list' %}" class="ios-breadcrumb-item">Targets</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="ios-breadcrumb-item active">{{ target.name }}</span>
+        </div>
+    </div>
+    <div>
+        <a href="{% url 'target_update' target.pk %}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'target_delete' target.pk %}" class="btn btn-outline-danger">
+            <i class="fas fa-trash-alt"></i> Delete
+        </a>
+    </div>
+</div>
+
+<!-- Target Details Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Target Details</h5>
+            <div>
+                <span class="badge bg-{{ target.status|cut:'_' }} me-2">{{ target.get_status_display }}</span>
+                <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl>
+                    <dt>Description</dt>
+                    <dd>{{ target.description }}</dd>
+                    
+                    <dt>Status</dt>
+                    <dd><span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span></dd>
+                    
+                    <dt>Priority</dt>
+                    <dd><span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span></dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl>
+                    <dt>Created By</dt>
+                    <dd>{{ target.created_by.username }}</dd>
+                    
+                    {% if target.assignee %}
+                    <dt>Assigned To</dt>
+                    <dd>{{ target.assignee.username }}</dd>
+                    {% endif %}
+                    
+                    {% if target.due_date %}
+                    <dt>Due Date</dt>
+                    <dd>{{ target.due_date|date:"F j, Y" }}</dd>
+                    {% endif %}
+                    
+                    {% if target.event %}
+                    <dt>Associated Event</dt>
+                    <dd><a href="{% url 'event_detail' target.event.pk %}">{{ target.event.title }}</a></dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+        
+        {% if target.due_date %}
+        <!-- Progress Bar -->
+        <div class="mt-4">
+            <h6>Time Remaining</h6>
+            {% with days_remaining=target.days_remaining %}
+            {% if days_remaining > 0 %}
+                <div class="progress mb-2">
+                    <div class="progress-bar 
+                        {% if days_remaining <= 1 %}bg-danger
+                        {% elif days_remaining <= 3 %}bg-warning
+                        {% else %}bg-success{% endif %}" 
+                        role="progressbar" 
+                        style="width: {{ target.progress_percentage }}%" 
+                        aria-valuenow="{{ target.progress_percentage }}" 
+                        aria-valuemin="0" 
+                        aria-valuemax="100">
+                    </div>
+                </div>
+                <small class="text-muted">{{ days_remaining }} days remaining</small>
+            {% elif days_remaining == 0 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Due today!
+                </div>
+            {% else %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i> Overdue by {{ days_remaining|make_positive }} days
+                </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Notes Section -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+    </div>
+    <div class="card-body">
+        <div id="target-notes-{{ target.id }}">
+            <!-- Notes will be loaded here via HTMX -->
+            {% if target.notes.all %}
+                <div class="mb-4">
+                    {% for note in target.notes.all %}
+                    {% with colors="blue,green,purple,orange,pink,teal,yellow" %}
+                    {% with color_list=colors|split:"," %}
+                    {% with note_color=color_list|random %}
+                    <div class="kanban-note note-card-{{ note_color }} mb-3">
+                        <div class="kanban-note-header">
+                            <span>{{ note.title }}</span>
+                            <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <div class="kanban-note-content">
+                            {{ note.content }}
+                        </div>
+                        <div class="kanban-note-footer">
+                            <span>By: {{ note.created_by.username }}</span>
+                            <div>
+                                <span class="badge" style="background-color: var(--ios-green);">
+                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                </span>
+                                <span class="badge" style="background-color: var(--ios-red);">
+                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No notes yet for this target.</p>
+                </div>
+            {% endif %}
+            
+            <!-- Add Note Form -->
+            <form class="mt-4" hx-post="{% url 'htmx_add_note' pk=target.id %}" hx-target="#target-notes-{{ target.id }}" hx-swap="outerHTML">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="noteContent" name="content" style="height: 100px" placeholder="Add a note about this target..." required></textarea>
+                    <label for="noteContent">Add a note...</label>
+                </div>
+                <button type="submit" class="btn" style="background-color: var(--ios-purple); color: white;">
+                    <i class="fas fa-plus me-2"></i>Add Note
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

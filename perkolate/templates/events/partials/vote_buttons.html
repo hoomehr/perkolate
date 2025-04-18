@@ -1,0 +1,17 @@
+<div class="vote-buttons">
+    <button class="btn btn-sm {% if user_vote == 'up' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+            hx-post="{% url 'htmx_note_upvote' note.pk %}"
+            hx-target="#vote-buttons-{{ note.pk }}"
+            hx-swap="outerHTML">
+        <i class="fas fa-arrow-up"></i>
+        <span>{{ upvotes }}</span>
+    </button>
+    
+    <button class="btn btn-sm {% if user_vote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %}"
+            hx-post="{% url 'htmx_note_downvote' note.pk %}"
+            hx-target="#vote-buttons-{{ note.pk }}"
+            hx-swap="outerHTML">
+        <i class="fas fa-arrow-down"></i>
+        <span>{{ downvotes }}</span>
+    </button>
+</div> 

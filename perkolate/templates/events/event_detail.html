@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load event_filters %}
+
+{% block title %}{{ event.title }} | Perkolate{% endblock %}
+
+{% block content %}
+<!-- Header with Breadcrumb -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">{{ event.title }}</h1>
+        <div class="ios-breadcrumb">
+            <a href="{% url 'dashboard' %}" class="ios-breadcrumb-item">Dashboard</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <a href="{% url 'event_list' %}" class="ios-breadcrumb-item">Events</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="ios-breadcrumb-item active">{{ event.title }}</span>
+        </div>
+    </div>
+    <div>
+        <a href="{% url 'event_update' event.pk %}" class="btn btn-outline-primary me-2">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'event_delete' event.pk %}" class="btn btn-outline-danger">
+            <i class="fas fa-trash-alt"></i> Delete
+        </a>
+    </div>
+</div>
+
+<!-- Event Details Card -->
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Event Details</h5>
+            <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl>
+                    <dt>Description</dt>
+                    <dd>{{ event.description }}</dd>
+                    
+                    <dt>Status</dt>
+                    <dd><span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span></dd>
+
+                    <dt>Created By</dt>
+                    <dd>{{ event.created_by.username }}</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl>
+                    <dt>Start Date</dt>
+                    <dd>{{ event.start_date|date:"F j, Y" }}</dd>
+                    
+                    <dt>End Date</dt>
+                    <dd>{{ event.end_date|date:"F j, Y"|default:"Not specified" }}</dd>
+                    
+                    <dt>Location</dt>
+                    <dd>{{ event.location|default:"No location specified" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Associated Targets -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Associated Targets</h5>
+    </div>
+    <div class="card-body">
+        {% if event.targets.all %}
+        <div class="list-group">
+            {% for target in event.targets.all %}
+            <a href="{% url 'target_detail' target.pk %}" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ target.name }}</h5>
+                    <div>
+                        <span class="badge bg-{{ target.status|cut:'_' }} me-2">{{ target.get_status_display }}</span>
+                        <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
+                    </div>
+                </div>
+                <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
+                <small>
+                    {% if target.assignee %}
+                    Assigned to: {{ target.assignee.username }}
+                    {% else %}
+                    Unassigned
+                    {% endif %}
+                    {% if target.due_date %}
+                    | Due: {{ target.due_date|date:"M d, Y" }}
+                    {% endif %}
+                </small>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <h5>No targets found</h5>
+            <p class="text-muted mb-3">This event doesn't have any associated targets</p>
+            <a href="{% url 'target_create' %}" class="btn btn-primary">Create Target</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Notes Section -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+    </div>
+    <div class="card-body">
+        <div id="event-notes-{{ event.id }}">
+            <!-- Notes will be loaded here via HTMX -->
+            {% if event.notes.all %}
+                <div class="mb-4">
+                    {% for note in event.notes.all %}
+                    {% with colors="blue,green,purple,orange,pink,teal,yellow" %}
+                    {% with color_list=colors|split:"," %}
+                    {% with note_color=color_list|random %}
+                    <div class="kanban-note note-card-{{ note_color }} mb-3">
+                        <div class="kanban-note-header">
+                            <span>{{ note.title }}</span>
+                            <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <div class="kanban-note-content">
+                            {{ note.content }}
+                        </div>
+                        <div class="kanban-note-footer">
+                            <span>By: {{ note.created_by.username }}</span>
+                            <div>
+                                <span class="badge" style="background-color: var(--ios-green);">
+                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                </span>
+                                <span class="badge" style="background-color: var(--ios-red);">
+                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No notes yet for this event.</p>
+                </div>
+            {% endif %}
+            
+            <!-- Add Note Form -->
+            <form class="mt-4" hx-post="{% url 'htmx_add_note' pk=event.id %}" hx-target="#event-notes-{{ event.id }}" hx-swap="outerHTML">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="noteContent" name="content" style="height: 100px" placeholder="Add a note about this event..." required></textarea>
+                    <label for="noteContent">Add a note...</label>
+                </div>
+                <button type="submit" class="btn" style="background-color: var(--ios-purple); color: white;">
+                    <i class="fas fa-plus me-2"></i>Add Note
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

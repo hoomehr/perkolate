@@ -1,0 +1,713 @@
+/* Perkolate Flat Design Theme */
+
+:root {
+  /* New color palette */
+  --cream: #F7F4EA;
+  --mint: #9CE3CF;
+  --periwinkle: #6A7FF5;
+  --purple: #574B9B;
+  
+  /* New vibrant color palette */
+  --rose-red: #E63946;
+  --fuchsia: #D33682;
+  --purple-haze: #9370DB;
+  --indigo: #4B0082;
+  
+  /* Shades and tints for variation */
+  --cream-dark: #e8e3d3;
+  --mint-dark: #7abeaa;
+  --periwinkle-dark: #5564c2;
+  --purple-dark: #463c7b;
+  
+  --cream-light: #fffcf5;
+  --mint-light: #b8f0df;
+  --periwinkle-light: #8b9ef9;
+  --purple-light: #6c5ebc;
+  
+  /* Background and text colors */
+  --bg-primary: var(--cream);
+  --bg-secondary: white;
+  --bg-accent: var(--mint);
+  
+  /* Status colors */
+  --status-planned: var(--periwinkle);
+  --status-in-progress: var(--periwinkle-dark);
+  --status-completed: var(--mint);
+  --status-cancelled: var(--purple);
+  --status-not-started: var(--cream-dark);
+  --status-blocked: var(--purple-dark);
+  
+  /* Priority colors */
+  --priority-low: var(--mint);
+  --priority-medium: var(--periwinkle);
+  --priority-high: var(--periwinkle-dark);
+  --priority-urgent: var(--purple);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--cream);
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding-top: 56px; /* Adjusted to match navbar height */
+}
+
+/* Navbar customization with new colors */
+.navbar {
+  background: var(--indigo);
+  box-shadow: 0 2px 8px rgba(87, 75, 155, 0.2);
+  transition: all 0.3s ease;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  height: 56px;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: white !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 1rem;
+  margin: 0 0.2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+  background-color: var(--periwinkle);
+  transform: translateY(-2px);
+  margin: 0 0.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+  background-color: var(--periwinkle);
+  color: white;
+}
+
+.navbar-dark .navbar-toggler {
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Fix for white space above header */
+.navbar-dark {
+  margin-top: 0 !important;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Card styling */
+.card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 10px rgba(87, 75, 155, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(87, 75, 155, 0.15);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--cream-dark);
+  font-weight: 600;
+  padding: 15px 20px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Button styles with new colors */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(87, 75, 155, 0.1);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  border-radius: 8px;
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+.btn-primary {
+  background-color: var(--indigo);
+  border-color: var(--indigo);
+}
+
+.btn-primary:hover {
+  background-color: var(--fuchsia);
+  border-color: var(--fuchsia);
+}
+
+.btn-success {
+  background-color: var(--purple-haze);
+  border-color: var(--purple-haze);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: var(--indigo);
+  border-color: var(--indigo);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--rose-red);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: var(--fuchsia);
+}
+
+.btn-warning {
+  background-color: var(--fuchsia);
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: var(--purple-haze);
+}
+
+.btn-info {
+  background-color: var(--purple-haze);
+  color: white;
+}
+
+.btn-info:hover {
+  background-color: var(--indigo);
+}
+
+.btn-outline-primary {
+  color: var(--indigo);
+  border: 1.5px solid var(--indigo);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--indigo);
+  color: white;
+  box-shadow: 0 2px 4px rgba(75, 0, 130, 0.2);
+}
+
+.btn-outline-success {
+  color: var(--purple-haze);
+  border: 1.5px solid var(--purple-haze);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-success:hover {
+  background-color: var(--purple-haze);
+  color: white;
+  box-shadow: 0 2px 4px rgba(147, 112, 219, 0.2);
+}
+
+.btn-outline-danger {
+  color: var(--rose-red);
+  border: 1.5px solid var(--rose-red);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--rose-red);
+  color: white;
+  box-shadow: 0 2px 4px rgba(230, 57, 70, 0.2);
+}
+
+/* Custom badge colors */
+.bg-primary {
+  background-color: var(--periwinkle) !important;
+  color: white;
+}
+
+.bg-success {
+  background-color: var(--mint) !important;
+  color: #333;
+}
+
+.bg-info {
+  background-color: var(--mint-light) !important;
+  color: #333;
+}
+
+.bg-warning {
+  background-color: var(--periwinkle-dark) !important;
+  color: white;
+}
+
+.bg-danger {
+  background-color: var(--purple) !important;
+  color: white;
+}
+
+/* Badge styling */
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.badge.bg-planned, .badge.bg-in_progress, .badge.bg-completed, 
+.badge.bg-cancelled, .badge.bg-not_started, .badge.bg-blocked,
+.badge.bg-low, .badge.bg-medium, .badge.bg-high, .badge.bg-urgent {
+  font-weight: 500;
+}
+
+.badge.bg-planned { background-color: var(--status-planned) !important; }
+.badge.bg-in_progress { background-color: var(--status-in_progress) !important; }
+.badge.bg-completed { background-color: var(--status-completed) !important; color: #333 !important; }
+.badge.bg-cancelled { background-color: var(--status-cancelled) !important; }
+.badge.bg-not_started { background-color: var(--status-not_started) !important; color: #333 !important; }
+.badge.bg-blocked { background-color: var(--status-blocked) !important; }
+
+.badge.bg-low { background-color: var(--priority-low) !important; color: #333 !important; }
+.badge.bg-medium { background-color: var(--priority-medium) !important; }
+.badge.bg-high { background-color: var(--priority-high) !important; }
+.badge.bg-urgent { background-color: var(--priority-urgent) !important; }
+
+/* Form styling */
+.form-control {
+  border-radius: 10px;
+  border: 1px solid var(--cream-dark);
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(87, 75, 155, 0.05);
+}
+
+.form-control:focus {
+  border-color: var(--periwinkle);
+  box-shadow: 0 0 0 3px rgba(106, 127, 245, 0.15);
+}
+
+.form-select {
+  border-radius: 10px;
+  border: 1px solid var(--cream-dark);
+  padding: 8px 12px;
+  padding-right: 30px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(87, 75, 155, 0.05);
+  background-position: right 12px center;
+}
+
+.form-select:focus {
+  border-color: var(--periwinkle);
+  box-shadow: 0 0 0 3px rgba(106, 127, 245, 0.15);
+}
+
+/* List group styling */
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid var(--cream-dark);
+  padding: 12px 15px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.list-group-item:first-child {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.list-group-item:last-child {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-bottom: none;
+}
+
+/* Tab styling */
+.nav-tabs {
+  border-bottom: 1px solid var(--cream-dark);
+  margin-bottom: 20px;
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  color: #555;
+  font-weight: 500;
+  padding: 10px 15px;
+  margin-right: 5px;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: var(--cream-light);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--indigo);
+  background-color: transparent;
+  border-bottom: 3px solid var(--fuchsia);
+}
+
+/* Welcome card styling */
+.welcome-card {
+  background: white;
+  color: #333;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.welcome-card h1, .welcome-card p, .welcome-card i {
+  color: #333 !important;
+}
+
+/* Stats cards */
+.stat-card {
+  border-radius: 12px;
+  padding: 20px;
+  background-color: white;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--purple);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--periwinkle);
+}
+
+/* Footer styling */
+.footer {
+  background-color: white;
+  padding: 20px 0;
+  margin-top: auto;
+  box-shadow: 0 -1px 3px rgba(87, 75, 155, 0.05);
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 12px 20px;
+  box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
+}
+
+.alert-dismissible .btn-close {
+  padding: 15px;
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Vote buttons */
+.vote-buttons .btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+}
+
+/* Progress bars */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--cream);
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  border-radius: 4px;
+  background-color: var(--periwinkle);
+}
+
+/* Custom switch */
+.form-check-input:checked {
+  background-color: var(--periwinkle);
+  border-color: var(--periwinkle);
+}
+
+/* Quick action cards */
+.quick-action-card {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  height: 100%;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(87, 75, 155, 0.05);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(87, 75, 155, 0.1);
+}
+
+.quick-action-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 25px 15px;
+}
+
+/* Kanban board styling */
+.kanban-board {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.kanban-column {
+  min-width: 300px;
+  max-width: 300px;
+  margin-right: 20px;
+  background-color: var(--ios-gray6);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.kanban-column-header {
+  font-weight: 600;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--ios-gray5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kanban-note {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.kanban-note:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+.kanban-note-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.kanban-note-content {
+  color: var(--ios-gray1);
+  font-size: 0.9rem;
+}
+
+.kanban-note-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 0.8rem;
+  color: var(--ios-gray2);
+}
+
+/* Custom note card colors based on new palette */
+.note-card-blue {
+  border-left: 4px solid var(--indigo);
+}
+.note-card-green {
+  border-left: 4px solid var(--purple-haze);
+}
+.note-card-purple {
+  border-left: 4px solid var(--fuchsia);
+}
+.note-card-orange {
+  border-left: 4px solid var(--rose-red);
+}
+.note-card-pink {
+  border-left: 4px solid var(--fuchsia);
+}
+.note-card-teal {
+  border-left: 4px solid var(--indigo);
+}
+.note-card-yellow {
+  border-left: 4px solid var(--purple-haze);
+}
+
+/* Apply vibrant colors to note cards */
+.note-card-indigo {
+  border-left: 4px solid var(--indigo);
+}
+.note-card-purple-haze {
+  border-left: 4px solid var(--purple-haze);
+}
+.note-card-fuchsia {
+  border-left: 4px solid var(--fuchsia);
+}
+.note-card-rose-red {
+  border-left: 4px solid var(--rose-red);
+}
+
+/* Main content padding */
+.main-content {
+  padding: 30px 0;
+  flex: 1;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #666;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  color: var(--purple-light);
+  opacity: 0.7;
+}
+
+/* Custom breadcrumb */
+.ios-breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.ios-breadcrumb-item {
+  color: #666;
+  text-decoration: none;
+}
+
+.ios-breadcrumb-item.active {
+  color: var(--periwinkle);
+  font-weight: 500;
+}
+
+.ios-breadcrumb-separator {
+  margin: 0 10px;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 767.98px) {
+  .kanban-column {
+    min-width: 250px;
+  }
+  
+  .stat-card {
+    margin-bottom: 15px;
+  }
+  
+  .welcome-card {
+    margin-bottom: 20px;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+}
+
+/* Add scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  opacity: 0.7;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+  40% {transform: translateY(-10px) translateX(-50%);}
+  60% {transform: translateY(-5px) translateX(-50%);}
+}
+
+/* Calendar event styles */
+.calendar-event-mini {
+  margin-top: 20px;
+  margin-bottom: 2px;
+  padding: 3px 5px;
+  font-size: 0.65rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+  z-index: 2;
+}
+
+.calendar-event-mini.priority-high {
+  background-color: var(--rose-red);
+}
+
+.calendar-event-mini.priority-medium {
+  background-color: var(--fuchsia);
+}
+
+.calendar-event-mini.priority-low {
+  background-color: var(--purple-haze);
+}
+
+.calendar-event-mini.priority-default {
+  background-color: var(--indigo);
+}
+
+.calendar-event-mini:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+} 

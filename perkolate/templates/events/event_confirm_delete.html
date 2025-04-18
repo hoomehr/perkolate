@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Event | Perkolate{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="fas fa-trash"></i> Delete Event</h1>
+        <div class="ios-breadcrumb">
+            <a href="{% url 'dashboard' %}" class="ios-breadcrumb-item">Dashboard</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <a href="{% url 'event_list' %}" class="ios-breadcrumb-item">Events</a>
+            <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="ios-breadcrumb-item active">Delete Event</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Are you sure?</h5>
+            <p>You are about to delete the event <strong>"{{ event.title }}"</strong>. This action cannot be undone.</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Event Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Title</dt>
+                    <dd class="col-sm-9">{{ event.title }}</dd>
+                    
+                    <dt class="col-sm-3">Start Date</dt>
+                    <dd class="col-sm-9">{{ event.start_date|date:"M d, Y h:i A" }}</dd>
+                    
+                    <dt class="col-sm-3">End Date</dt>
+                    <dd class="col-sm-9">{{ event.end_date|date:"M d, Y h:i A" }}</dd>
+                    
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
+                    </dd>
+                    
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">{{ event.description }}</dd>
+                    
+                    <dt class="col-sm-3">Created By</dt>
+                    <dd class="col-sm-9">{{ event.created_by.username }}</dd>
+                    
+                    <dt class="col-sm-3">Created At</dt>
+                    <dd class="col-sm-9">{{ event.created_at|date:"M d, Y h:i A" }}</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Yes, Delete Event
+                </button>
+                <a href="{% url 'event_detail' event.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

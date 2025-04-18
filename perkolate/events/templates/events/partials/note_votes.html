@@ -1,0 +1,16 @@
+<div class="note-votes" id="note-votes-{{ note.id }}">
+    <button class="vote-btn upvote {% if user_vote.is_upvote %}active{% endif %}"
+            hx-post="{% url 'htmx_note_upvote' note_id=note.id %}"
+            hx-target="#note-votes-{{ note.id }}"
+            hx-swap="outerHTML">
+        <i class="fas fa-arrow-up"></i>
+        <span class="vote-count">{{ upvotes }}</span>
+    </button>
+    <button class="vote-btn downvote {% if user_vote and not user_vote.is_upvote %}active{% endif %}"
+            hx-post="{% url 'htmx_note_downvote' note_id=note.id %}"
+            hx-target="#note-votes-{{ note.id }}"
+            hx-swap="outerHTML">
+        <i class="fas fa-arrow-down"></i>
+        <span class="vote-count">{{ downvotes }}</span>
+    </button>
+</div> 

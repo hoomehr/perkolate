@@ -1,157 +1,673 @@
 {% extends 'base.html' %}
+{% load event_filters %}
+{% load custom_filters %}
 
 {% block title %}Dashboard | Perkolate{% endblock %}
 
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .stat-label {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .event-progress {
+        height: 8px;
+        border-radius: 4px;
+    }
+    .quick-action-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .quick-action-card:hover {
+        transform: scale(1.05);
+    }
+    .welcome-card {
+        background: white;
+        color: #333;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .tab-pane {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .tab-pane.show.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Calendar styles */
+    .calendar-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    .calendar-header {
+        background: var(--fuchsia);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+    .calendar-day-header {
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        border-bottom: 1px solid #eee;
+    }
+    .calendar-day {
+        aspect-ratio: 1;
+        padding: 8px;
+        border-right: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .calendar-day:nth-child(7n) {
+        border-right: none;
+    }
+    .calendar-day-number {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        font-size: 0.85rem;
+        color: #777;
+        z-index: 1;
+    }
+    .calendar-day.other-month {
+        background-color: rgba(0,0,0,0.02);
+    }
+    .calendar-day.today {
+        background-color: rgba(113, 55, 112, 0.05);
+    }
+    
+    .calendar-event-mini {
+        margin-top: 20px;
+        margin-bottom: 2px;
+        padding: 3px 5px;
+        font-size: 0.65rem;
+        border-radius: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background-color: var(--fuchsia);
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s;
+        z-index: 2;
+    }
+    
+    .calendar-event-mini.priority-high {
+        background-color: var(--rose-red);
+    }
+    
+    .calendar-event-mini.priority-medium {
+        background-color: var(--fuchsia);
+    }
+    
+    .calendar-event-mini.priority-low {
+        background-color: var(--purple-haze);
+    }
+    
+    .calendar-event-mini:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .calendar-more-events {
+        font-size: 0.65rem;
+        text-align: center;
+        color: var(--indigo);
+        background-color: rgba(67, 47, 112, 0.1);
+        border-radius: 3px;
+        padding: 2px;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+    
+    .event-priority-high {
+        background-color: var(--rose-red);
+        color: white;
+    }
+    .event-priority-medium {
+        background-color: var(--fuchsia);
+        color: white;
+    }
+    .event-priority-low {
+        background-color: var(--purple-haze);
+        color: white;
+    }
+    .event-tooltip {
+        position: absolute;
+        background: white;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        z-index: 100;
+        width: 200px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-6">
-        <h2>Welcome, {{ user.first_name }}!</h2>
-        <p class="text-muted">Here's a summary of your events and targets.</p>
-    </div>
-    <div class="col-md-6 text-end">
-        <a href="{% url 'event_create' %}" class="btn btn-primary me-2">
-            <i class="fas fa-plus"></i> New Event
-        </a>
-        <a href="{% url 'target_create' %}" class="btn btn-success me-2">
-            <i class="fas fa-plus"></i> New Target
-        </a>
-        <a href="{% url 'note_create' %}" class="btn btn-info">
-            <i class="fas fa-plus"></i> New Note
-        </a>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Events Section -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="fas fa-calendar-alt"></i> Recent Events</h4>
-                <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-light">View All</a>
-            </div>
-            <div class="card-body">
-                {% if events %}
-                <div class="list-group">
-                    {% for event in events %}
-                    <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ event.title }}</h5>
-                            <small>{{ event.start_date|date:"M d, Y" }}</small>
-                        </div>
-                        <p class="mb-1">{{ event.description|truncatechars:100 }}</p>
-                        <small class="d-flex justify-content-between">
-                            <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
-                            <span>Created by: {{ event.created_by.username }}</span>
-                        </small>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="alert alert-info">
-                    <p class="mb-0">No events found. <a href="{% url 'event_create' %}">Create your first event!</a></p>
-                </div>
-                {% endif %}
-            </div>
+<!-- Welcome Section with Greeting and Overview -->
+<div class="welcome-card p-4 mb-4 slide-in">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h1 class="display-5 fw-bold" style="color: #333 !important;">Hello, {{ user.first_name|default:user.username }}!</h1>
+            <p class="lead mb-0" style="color: #333 !important;">Here's your dashboard overview for {% now "F j, Y" %}.</p>
         </div>
-    </div>
-
-    <!-- Targets Section -->
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="fas fa-bullseye"></i> Recent Targets</h4>
-                <a href="{% url 'target_list' %}" class="btn btn-sm btn-outline-light">View All</a>
-            </div>
-            <div class="card-body">
-                {% if targets %}
-                <div class="list-group">
-                    {% for target in targets %}
-                    <a href="{% url 'target_detail' target.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ target.name }}</h5>
-                            <small>
-                                {% if target.due_date %}
-                                Due: {{ target.due_date|date:"M d, Y" }}
-                                {% else %}
-                                No due date
-                                {% endif %}
-                            </small>
-                        </div>
-                        <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
-                        <small class="d-flex justify-content-between">
-                            <span>
-                                <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
-                                <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
-                            </span>
-                            <span>
-                                {% if target.assignee %}
-                                Assigned to: {{ target.assignee.username }}
-                                {% else %}
-                                Unassigned
-                                {% endif %}
-                            </span>
-                        </small>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="alert alert-info">
-                    <p class="mb-0">No targets found. <a href="{% url 'target_create' %}">Create your first target!</a></p>
-                </div>
-                {% endif %}
-            </div>
+        <div class="col-md-5 text-end d-none d-md-block">
+            <i class="fas fa-chart-line fa-4x opacity-50" style="color: #333 !important;"></i>
         </div>
     </div>
 </div>
 
-<!-- Notes Section -->
-<div class="row">
+<!-- Monthly Calendar View -->
+<div class="calendar-container slide-in" id="monthlyCalendar">
+    <div class="calendar-header">
+        <h4 class="mb-0"><i class="fas fa-calendar me-2"></i>Monthly Calendar</h4>
+        <div>
+            <button class="btn btn-sm btn-outline-light me-2" id="prevMonth">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="currentMonth">{% now "F Y" %}</span>
+            <button class="btn btn-sm btn-outline-light ms-2" id="nextMonth">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <div>
+        <div class="calendar-grid">
+            <!-- Day headers -->
+            <div class="calendar-day-header">Sun</div>
+            <div class="calendar-day-header">Mon</div>
+            <div class="calendar-day-header">Tue</div>
+            <div class="calendar-day-header">Wed</div>
+            <div class="calendar-day-header">Thu</div>
+            <div class="calendar-day-header">Fri</div>
+            <div class="calendar-day-header">Sat</div>
+        </div>
+        
+        <!-- Calendar days - Will be filled by JavaScript -->
+        <div class="calendar-grid" id="calendarDays"></div>
+    </div>
+</div>
+
+<!-- Quick Actions Section with Clean, Minimal Cards -->
+<div class="row mb-4 slide-in">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a href="{% url 'event_create' %}" class="text-decoration-none">
+            <div class="quick-action-card card h-100">
+                <div class="card-body">
+                    <i class="fas fa-calendar-plus fa-3x mb-3" style="color: var(--rose-red);"></i>
+                    <h5>New Event</h5>
+                    <p class="text-muted small">Schedule a new event</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a href="{% url 'target_create' %}" class="text-decoration-none">
+            <div class="quick-action-card card h-100">
+                <div class="card-body">
+                    <i class="fas fa-bullseye fa-3x mb-3" style="color: var(--fuchsia);"></i>
+                    <h5>New Target</h5>
+                    <p class="text-muted small">Create a new target</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a href="{% url 'note_create' %}" class="text-decoration-none">
+            <div class="quick-action-card card h-100">
+                <div class="card-body">
+                    <i class="fas fa-sticky-note fa-3x mb-3" style="color: var(--purple-haze);"></i>
+                    <h5>New Note</h5>
+                    <p class="text-muted small">Share a note</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <a href="{% url 'profile' %}" class="text-decoration-none">
+            <div class="quick-action-card card h-100">
+                <div class="card-body">
+                    <i class="fas fa-user-cog fa-3x mb-3" style="color: var(--indigo);"></i>
+                    <h5>Profile</h5>
+                    <p class="text-muted small">Manage your profile</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Content Tabs with Improved UI -->
+<div class="row mb-4 fade-in">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="fas fa-sticky-note"></i> Recent Notes</h4>
-                <a href="{% url 'note_board' %}" class="btn btn-sm btn-outline-light">View All</a>
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="dashboardTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="true">
+                            <i class="fas fa-calendar-alt me-2"></i>Recent Events
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="targets-tab" data-bs-toggle="tab" data-bs-target="#targets" type="button" role="tab" aria-controls="targets" aria-selected="false">
+                            <i class="fas fa-bullseye me-2"></i>Active Targets
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes" type="button" role="tab" aria-controls="notes" aria-selected="false">
+                            <i class="fas fa-sticky-note me-2"></i>Latest Notes
+                        </button>
+                    </li>
+                </ul>
             </div>
             <div class="card-body">
-                {% if notes %}
-                <div class="row">
-                    {% for note in notes %}
-                    <div class="col-md-4 mb-3">
-                        <div class="card h-100">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">{{ note.title }}</h5>
-                                <small>{{ note.created_at|date:"M d, Y" }}</small>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-text">{{ note.content|truncatechars:100 }}</p>
+                <div class="tab-content" id="dashboardTabsContent">
+                    <!-- Events Tab -->
+                    <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="events-tab">
+                        {% if events %}
+                        <div class="list-group" hx-trigger="load" hx-get="{% url 'event_list' %}" hx-target="this" hx-swap="innerHTML" hx-select=".list-group">
+                            {% for event in events %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ event.title }}</h5>
+                                    <small class="text-muted">{{ event.start_date|date:"M d, Y" }}</small>
+                                </div>
+                                <p class="mb-1">{{ event.description|truncatechars:100 }}</p>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="badge bg-success me-1">
-                                            <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
-                                        </span>
-                                        <span class="badge bg-danger">
-                                            <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
-                                        </span>
-                                    </div>
-                                    <small class="text-muted">By: {{ note.created_by.username }}</small>
+                                    <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
+                                    <a href="{% url 'event_detail' event.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
                                 </div>
                             </div>
-                            <div class="card-footer bg-transparent text-center">
-                                <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i> View Details
-                                </a>
-                            </div>
+                            {% endfor %}
                         </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'event_list' %}" class="btn btn-outline-primary">View All Events</a>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <h5>No events found</h5>
+                            <p class="text-muted mb-3">Create your first event to get started</p>
+                            <a href="{% url 'event_create' %}" class="btn btn-primary">Create Event</a>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endfor %}
+
+                    <!-- Targets Tab -->
+                    <div class="tab-pane fade" id="targets" role="tabpanel" aria-labelledby="targets-tab">
+                        {% if targets %}
+                        <div class="list-group" hx-trigger="load" hx-get="{% url 'target_list' %}" hx-target="this" hx-swap="innerHTML" hx-select=".list-group">
+                            {% for target in targets %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ target.name }}</h5>
+                                    <small>
+                                        {% if target.due_date %}
+                                        Due: {{ target.due_date|date:"M d, Y" }}
+                                        {% else %}
+                                        No due date
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
+                                        <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
+                                    </div>
+                                    <div>
+                                        {% if target.assignee %}
+                                        <small class="text-muted me-2">Assigned to: {{ target.assignee.username }}</small>
+                                        {% endif %}
+                                        <a href="{% url 'target_detail' target.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'target_list' %}" class="btn btn-outline-success">View All Targets</a>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h5>No targets found</h5>
+                            <p class="text-muted mb-3">Create your first target to get started</p>
+                            <a href="{% url 'target_create' %}" class="btn btn-success">Create Target</a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Notes Tab with Card Layout -->
+                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                        {% if notes %}
+                        <div class="row">
+                            {% for note in notes %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 note-card-{{ forloop.counter|divisibleby:4|yesno:'indigo,purple-haze,fuchsia,rose-red' }}">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">{{ note.title }}</h5>
+                                        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="card-text">{{ note.content|truncatechars:150 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge" style="background-color: var(--indigo) !important;">
+                                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                                </span>
+                                                <span class="badge" style="background-color: var(--rose-red) !important;">
+                                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">By: {{ note.created_by.username }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-transparent text-center">
+                                        <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'note_board' %}" class="btn" style="background-color: var(--fuchsia); color: white;">View All Notes</a>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <h5>No notes found</h5>
+                            <p class="text-muted mb-3">Create your first note to get started</p>
+                            <a href="{% url 'note_create' %}" class="btn" style="background-color: var(--fuchsia); color: white;">Create Note</a>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                {% else %}
-                <div class="alert alert-info">
-                    <p class="mb-0">No notes found. <a href="{% url 'note_create' %}">Create your first note!</a></p>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize monthly calendar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calendar functionality
+        const calendarDays = document.getElementById('calendarDays');
+        const monthDisplay = document.getElementById('currentMonth');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        // Sample dummy events data (would come from backend in real app)
+        const dummyEvents = [
+            { 
+                id: 1, 
+                title: 'Team Meeting', 
+                date: new Date(currentYear, currentMonth, 5),
+                priority: 'high',
+                time: '10:00 AM'
+            },
+            { 
+                id: 2, 
+                title: 'Project Deadline', 
+                date: new Date(currentYear, currentMonth, 10),
+                priority: 'high',
+                time: '3:00 PM'
+            },
+            { 
+                id: 3, 
+                title: 'Lunch with Client', 
+                date: new Date(currentYear, currentMonth, 10),
+                priority: 'medium',
+                time: '12:30 PM'
+            },
+            { 
+                id: 4, 
+                title: 'Weekly Review', 
+                date: new Date(currentYear, currentMonth, 15),
+                priority: 'medium',
+                time: '2:00 PM'
+            },
+            { 
+                id: 5, 
+                title: 'Training Session', 
+                date: new Date(currentYear, currentMonth, 15),
+                priority: 'low',
+                time: '11:00 AM'
+            },
+            { 
+                id: 6, 
+                title: 'Staff Meeting', 
+                date: new Date(currentYear, currentMonth, 15),
+                priority: 'medium',
+                time: '4:00 PM'
+            },
+            { 
+                id: 7, 
+                title: 'Budget Planning', 
+                date: new Date(currentYear, currentMonth, 20),
+                priority: 'high',
+                time: '9:30 AM'
+            },
+            { 
+                id: 8, 
+                title: 'Conference Call', 
+                date: new Date(currentYear, currentMonth, 25),
+                priority: 'low',
+                time: '1:00 PM'
+            }
+        ];
+        
+        // Function to get events for a specific day
+        function getEventsForDay(year, month, day) {
+            return dummyEvents.filter(event => 
+                event.date.getFullYear() === year && 
+                event.date.getMonth() === month && 
+                event.date.getDate() === day
+            );
+        }
+        
+        // Generate and display calendar
+        function generateCalendar(month, year) {
+            // Clear previous calendar
+            while (calendarDays.firstChild) {
+                calendarDays.removeChild(calendarDays.firstChild);
+            }
+            
+            // Update month display
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                               "July", "August", "September", "October", "November", "December"];
+            monthDisplay.textContent = `${monthNames[month]} ${year}`;
+            
+            // Get first day of month and total days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Get days from previous month
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day other-month';
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = daysInPrevMonth - i;
+                
+                dayCell.appendChild(dayNumber);
+                calendarDays.appendChild(dayCell);
+            }
+            
+            // Current month days
+            const today = new Date();
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                
+                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayCell.classList.add('today');
+                }
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = i;
+                dayCell.appendChild(dayNumber);
+                
+                // Add events for this day
+                const dayEvents = getEventsForDay(year, month, i);
+                if (dayEvents.length > 0) {
+                    // Show max 2 events, then "more" link
+                    const maxVisibleEvents = 2;
+                    const displayedEvents = dayEvents.slice(0, maxVisibleEvents);
+                    
+                    displayedEvents.forEach(event => {
+                        const eventElement = document.createElement('div');
+                        eventElement.className = `calendar-event-mini priority-${event.priority}`;
+                        
+                        // Apply vibrant colors based on priority
+                        if (event.priority === 'high') {
+                            eventElement.style.backgroundColor = 'var(--rose-red)';
+                        } else if (event.priority === 'medium') {
+                            eventElement.style.backgroundColor = 'var(--fuchsia)';
+                        } else if (event.priority === 'low') {
+                            eventElement.style.backgroundColor = 'var(--purple-haze)';
+                        } else {
+                            eventElement.style.backgroundColor = 'var(--indigo)';
+                        }
+                        
+                        eventElement.style.color = 'white';
+                        eventElement.innerHTML = `${event.time} - ${event.title}`;
+                        eventElement.setAttribute('data-event-id', event.id);
+                        
+                        eventElement.addEventListener('click', function() {
+                            // In real app, this would navigate to the event detail page
+                            alert(`Viewing event: ${event.title}`);
+                        });
+                        
+                        dayCell.appendChild(eventElement);
+                    });
+                    
+                    if (dayEvents.length > maxVisibleEvents) {
+                        const moreElement = document.createElement('div');
+                        moreElement.className = 'calendar-more-events';
+                        moreElement.textContent = `+ ${dayEvents.length - maxVisibleEvents} more`;
+                        
+                        moreElement.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const eventsList = dayEvents.map(event => 
+                                `<div>${event.time} - ${event.title}</div>`
+                            ).join('');
+                            
+                            alert(`Events for ${monthNames[month]} ${i}, ${year}:\n\n${eventsList}`);
+                        });
+                        
+                        dayCell.appendChild(moreElement);
+                    }
+                }
+                
+                calendarDays.appendChild(dayCell);
+            }
+            
+            // Next month days
+            const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+            const nextMonthDays = totalCells - (firstDay + daysInMonth);
+            
+            for (let i = 1; i <= nextMonthDays; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day other-month';
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = i;
+                
+                dayCell.appendChild(dayNumber);
+                calendarDays.appendChild(dayCell);
+            }
+        }
+        
+        // Initial calendar generation
+        generateCalendar(currentMonth, currentYear);
+        
+        // Previous month button
+        prevMonthBtn.addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+        
+        // Next month button
+        nextMonthBtn.addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentMonth, currentYear);
+        });
+        
+        // Tab switching animation enhancement
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+            tabEl.addEventListener('shown.bs.tab', function(event) {
+                // Focus animation for the newly activated tab
+                const targetPanel = document.querySelector(event.target.getAttribute('data-bs-target'));
+                if (targetPanel) {
+                    targetPanel.classList.add('slide-in');
+                    setTimeout(() => targetPanel.classList.remove('slide-in'), 500);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %} 

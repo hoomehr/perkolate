@@ -1,124 +1,502 @@
 {% extends 'base.html' %}
+{% load event_filters %}
 
-{% block title %}Notes Board | Perkolate{% endblock %}
+{% block title %}Notes | Perkolate{% endblock %}
+
+{% block extra_css %}
+<style>
+    .note-board {
+        margin-top: 20px;
+    }
+    
+    .note-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .note-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+        transition: all 0.2s ease;
+        position: relative;
+        border-top: 4px solid var(--periwinkle);
+        border-left: none;
+    }
+    
+    .note-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(87, 75, 155, 0.08);
+    }
+    
+    .note-card-blue {
+        border-top-color: var(--periwinkle);
+    }
+    
+    .note-card-green {
+        border-top-color: var(--mint);
+    }
+    
+    .note-card-purple {
+        border-top-color: var(--purple);
+    }
+    
+    .note-card-yellow {
+        border-top-color: var(--periwinkle-light);
+    }
+    
+    .note-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    
+    .note-card-header span {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    .note-card-content {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 16px;
+        line-height: 1.5;
+    }
+    
+    .note-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 12px;
+        border-top: 1px solid var(--cream);
+        font-size: 0.85rem;
+        color: #777;
+    }
+    
+    .note-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .note-votes {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .vote-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .upvote-badge {
+        background-color: var(--mint);
+        color: #333;
+    }
+    
+    .downvote-badge {
+        background-color: var(--purple);
+        color: white;
+    }
+    
+    /* Filter Section Styles */
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+    }
+    
+    .filter-header {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .filter-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--purple);
+        margin: 0;
+    }
+    
+    .filter-group {
+        margin-bottom: 15px;
+    }
+    
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--purple);
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-label i {
+        margin-right: 8px;
+        color: var(--periwinkle);
+    }
+    
+    /* Filter buttons with new color palette */
+    .filter-btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        border-radius: 6px;
+        padding: 6px 12px;
+        margin: 0;
+        font-size: 0.85rem;
+        border: 1px solid var(--cream);
+        background-color: white;
+        color: #555;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(87, 75, 155, 0.1);
+        background-color: var(--cream);
+    }
+    
+    .filter-btn.active {
+        color: white;
+    }
+    
+    /* Sort filter buttons */
+    .filter-btn-sort.active {
+        background-color: var(--periwinkle);
+        border-color: var(--periwinkle);
+    }
+    
+    /* Tag filter buttons */
+    .filter-btn-tag.active {
+        background-color: var(--purple);
+        border-color: var(--purple);
+    }
+    
+    .search-container {
+        position: relative;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--periwinkle);
+    }
+    
+    .search-input {
+        padding-left: 40px;
+        border-radius: 8px;
+        border: 1px solid var(--cream);
+        box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 0 0 3px rgba(106, 127, 245, 0.15);
+        border-color: var(--periwinkle);
+    }
+    
+    .note-empty {
+        text-align: center;
+        padding: 40px;
+        background-color: var(--cream);
+        border-radius: 12px;
+        grid-column: 1 / -1;
+        color: #555;
+    }
+    
+    .view-details-btn {
+        width: 100%;
+        padding: 8px;
+        background-color: white;
+        border: 1px solid var(--periwinkle);
+        color: var(--periwinkle);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .view-details-btn:hover {
+        background-color: var(--periwinkle);
+        color: white;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
         <h2><i class="fas fa-sticky-note"></i> Notes Board</h2>
-        <p class="text-muted">View and interact with notes from team members.</p>
+        <p class="text-muted">A collaborative space for sharing and discussing ideas.</p>
     </div>
     <div class="col-md-4 text-end">
-        <a href="{% url 'note_create' %}" class="btn btn-primary">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newNoteModal">
             <i class="fas fa-plus"></i> New Note
-        </a>
+        </button>
     </div>
 </div>
 
-{% if page_obj %}
-<div class="row">
-    {% for note in page_obj %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">{{ note.title }}</h5>
-                <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
-            </div>
-            <div class="card-body">
-                <p class="card-text">{{ note.content|truncatechars:150 }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="badge bg-success me-1">
-                            <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
-                        </span>
-                        <span class="badge bg-danger">
-                            <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
-                        </span>
-                    </div>
-                    <small class="text-muted">By: {{ note.created_by.username }}</small>
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="filter-header">
+        <h3 class="filter-title"><i class="fas fa-filter me-2"></i>Filter Notes</h3>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-search"></i>Search</div>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="form-control search-input" placeholder="Search notes..." id="note-search">
                 </div>
             </div>
-            <div class="card-footer bg-transparent text-center">
-                <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-eye"></i> View Details
-                </a>
+            
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-th-list"></i>Sort By</div>
+                <div class="filter-btn-group">
+                    <button type="button" class="filter-btn filter-btn-sort active" data-sort="recent">Most Recent</button>
+                    <button type="button" class="filter-btn filter-btn-sort" data-sort="votes">Most Votes</button>
+                    <button type="button" class="filter-btn filter-btn-sort" data-sort="alpha">Alphabetical</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-user"></i>Created By</div>
+                <div class="filter-btn-group">
+                    <button type="button" class="filter-btn filter-btn-tag active" data-tag="all">All Users</button>
+                    <button type="button" class="filter-btn filter-btn-tag" data-tag="me">My Notes</button>
+                    {% for user in users %}
+                    <button type="button" class="filter-btn filter-btn-tag" data-tag="{{ user.username }}">{{ user.username }}</button>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
 </div>
 
-<!-- Pagination -->
-<div class="row mt-3">
-    <div class="col-12">
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="First">
-                        <span aria-hidden="true">&laquo;&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-                
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active">
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-                
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-                {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" aria-label="Last">
-                        <span aria-hidden="true">&raquo;&raquo;</span>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+<!-- Notes Board (Card Grid) -->
+<div class="note-board">
+    <div class="note-grid" id="notes-grid">
+        {% with all_notes=notes_by_status.open %}
+        
+        {% if all_notes %}
+            {% for note in all_notes %}
+                {% with colors="blue,green,purple,yellow" %}
+                {% with color_list=colors|split:"," %}
+                {% with note_color=color_list|random %}
+                <div class="note-card note-card-{{ note_color }}" data-note-id="{{ note.id }}" data-user="{{ note.created_by.username }}" data-votes="{{ note.upvotes_count|add:'-'|add:note.downvotes_count }}">
+                    <div class="note-card-header">
+                        <span>{{ note.title }}</span>
+                        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="note-card-content">
+                        {{ note.content|truncatechars:150 }}
+                    </div>
+                    <div class="note-card-footer">
+                        <span>By: {{ note.created_by.username }}</span>
+                        <div class="note-votes">
+                            <span class="vote-badge upvote-badge">
+                                <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                            </span>
+                            <span class="vote-badge downvote-badge">
+                                <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'note_detail' note.pk %}" class="view-details-btn">View Details</a>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            <div class="note-empty">
+                <h4>No notes found</h4>
+                <p>Create your first note by clicking the "New Note" button above.</p>
+            </div>
+        {% endif %}
+        
+        {% endwith %}
     </div>
 </div>
-{% else %}
-<div class="alert alert-info">
-    <p class="mb-0">No notes found. <a href="{% url 'note_create' %}">Create your first note!</a></p>
+
+<!-- New Note Modal -->
+<div class="modal fade" id="newNoteModal" tabindex="-1" aria-labelledby="newNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newNoteModalLabel">Create New Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'note_create' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="noteTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="noteTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="noteContent" class="form-label">Content</label>
+                        <textarea class="form-control" id="noteContent" name="content" rows="5" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('note-search');
+        const userButtons = document.querySelectorAll('.filter-btn-tag');
+        const sortButtons = document.querySelectorAll('.filter-btn-sort');
+        const allNotes = document.querySelectorAll('.note-card');
+        
+        let activeUser = 'all';
+        let activeSort = 'recent';
+        
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            applyFilters();
+        });
+        
+        // User filter buttons
+        userButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                userButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                activeUser = this.getAttribute('data-tag');
+                applyFilters();
+            });
+        });
+        
+        // Sort buttons
+        sortButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                sortButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                activeSort = this.getAttribute('data-sort');
+                applyFilters();
+            });
+        });
+        
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const currentUser = '{{ request.user.username }}';
+            const notesGrid = document.getElementById('notes-grid');
+            let visibleCount = 0;
+            
+            // First hide all notes
+            allNotes.forEach(note => {
+                note.style.display = 'none';
+            });
+            
+            // Filter and show matching notes
+            allNotes.forEach(note => {
+                const title = note.querySelector('.note-card-header span').textContent.toLowerCase();
+                const content = note.querySelector('.note-card-content').textContent.toLowerCase();
+                const user = note.getAttribute('data-user');
+                
+                let matchesSearch = title.includes(searchTerm) || content.includes(searchTerm);
+                let matchesUser = activeUser === 'all' || 
+                                (activeUser === 'me' && user === currentUser) || 
+                                user === activeUser;
+                
+                if (matchesSearch && matchesUser) {
+                    note.style.display = '';
+                    visibleCount++;
+                }
+            });
+            
+            // Show empty state if no notes match filters
+            let emptyState = document.querySelector('.note-empty');
+            if (visibleCount === 0) {
+                if (!emptyState) {
+                    emptyState = document.createElement('div');
+                    emptyState.className = 'note-empty';
+                    emptyState.innerHTML = `
+                        <h4>No notes match your filters</h4>
+                        <p>Try adjusting your search criteria or create a new note.</p>
+                    `;
+                    notesGrid.appendChild(emptyState);
+                }
+                emptyState.style.display = '';
+            } else if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+            
+            // Sort notes
+            sortNotes();
+        }
+        
+        function sortNotes() {
+            const notesGrid = document.getElementById('notes-grid');
+            
+            // Get visible notes
+            const notes = Array.from(allNotes)
+                .filter(note => note.style.display !== 'none');
+            
+            // Sort based on active sort
+            notes.sort((a, b) => {
+                if (activeSort === 'recent') {
+                    const dateA = new Date(a.querySelector('.note-card-header small').textContent);
+                    const dateB = new Date(b.querySelector('.note-card-header small').textContent);
+                    return dateB - dateA; // Most recent first
+                } else if (activeSort === 'votes') {
+                    const votesA = parseInt(a.getAttribute('data-votes') || '0');
+                    const votesB = parseInt(b.getAttribute('data-votes') || '0');
+                    return votesB - votesA; // Most votes first
+                } else if (activeSort === 'alpha') {
+                    const titleA = a.querySelector('.note-card-header span').textContent.toLowerCase();
+                    const titleB = b.querySelector('.note-card-header span').textContent.toLowerCase();
+                    return titleA.localeCompare(titleB);
+                }
+                return 0;
+            });
+            
+            // Get the empty state element if it exists
+            const emptyState = document.querySelector('.note-empty');
+            if (emptyState) {
+                notesGrid.removeChild(emptyState);
+            }
+            
+            // Clear the grid and reappend in sorted order
+            notesGrid.innerHTML = '';
+            notes.forEach(note => {
+                notesGrid.appendChild(note);
+            });
+            
+            // Reappend empty state if needed
+            if (emptyState && notes.length === 0) {
+                notesGrid.appendChild(emptyState);
+            }
+        }
+    });
+</script>
 {% endblock %} 

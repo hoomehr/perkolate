@@ -2,6 +2,268 @@
 
 {% block title %}Events | Perkolate{% endblock %}
 
+{% block extra_css %}
+<style>
+    .calendar-view {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+    }
+    
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .calendar-title {
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--purple);
+    }
+    
+    .calendar-nav button {
+        background: none;
+        border: none;
+        color: var(--periwinkle);
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+    
+    .calendar-nav button:hover {
+        background-color: var(--cream);
+    }
+    
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 600;
+        color: var(--purple);
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--cream);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-gap: 5px;
+    }
+    
+    .calendar-day {
+        min-height: 80px;
+        border-radius: 8px;
+        padding: 5px;
+        position: relative;
+    }
+    
+    .calendar-day:hover {
+        background-color: var(--cream);
+    }
+    
+    .calendar-day-number {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+    
+    .current-day .calendar-day-number {
+        background-color: var(--periwinkle);
+        color: white;
+        border-radius: 50%;
+    }
+    
+    .calendar-event {
+        margin-top: 25px;
+        padding: 4px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: white;
+        margin-bottom: 2px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    /* Status-based background colors with new color palette */
+    .bg-completed {
+        background-color: var(--mint);
+        color: #333;
+    }
+    
+    .bg-inprogress {
+        background-color: var(--periwinkle);
+        color: white;
+    }
+    
+    .bg-planned {
+        background-color: var(--periwinkle-dark);
+        color: white;
+    }
+    
+    .bg-cancelled {
+        background-color: var(--purple);
+        color: white;
+    }
+    
+    .bg-primary {
+        background-color: var(--periwinkle);
+        color: white;
+    }
+    
+    .calendar-event:hover {
+        transform: translateY(-2px);
+    }
+    
+    .other-month {
+        color: #aaa;
+    }
+    
+    .view-toggle {
+        margin-bottom: 20px;
+    }
+    
+    .view-toggle .btn-outline-primary.active {
+        background-color: var(--periwinkle);
+        color: white;
+    }
+    
+    /* Filter Section Styles */
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+    }
+    
+    .filter-header {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .filter-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--purple);
+        margin: 0;
+    }
+    
+    .filter-group {
+        margin-bottom: 15px;
+    }
+    
+    .filter-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--purple);
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-label i {
+        margin-right: 8px;
+        color: var(--periwinkle);
+    }
+    
+    /* Filter buttons with new color palette */
+    .filter-btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        border-radius: 6px;
+        padding: 6px 12px;
+        margin: 0;
+        font-size: 0.85rem;
+        border: 1px solid var(--cream);
+        background-color: white;
+        color: #555;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(87, 75, 155, 0.1);
+        background-color: var(--cream);
+    }
+    
+    .filter-btn.active {
+        color: white;
+    }
+    
+    /* Status filter buttons */
+    .filter-btn-status.active {
+        background-color: var(--periwinkle);
+        border-color: var(--periwinkle);
+    }
+    
+    /* Date filter buttons */
+    .filter-btn-date.active {
+        background-color: var(--periwinkle-dark);
+        border-color: var(--periwinkle-dark);
+    }
+    
+    .search-container {
+        position: relative;
+    }
+    
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--periwinkle);
+    }
+    
+    .search-input {
+        padding-left: 40px;
+        border-radius: 8px;
+        border: 1px solid var(--cream);
+        box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 0 0 3px rgba(106, 127, 245, 0.15);
+        border-color: var(--periwinkle);
+    }
+    
+    .date-input {
+        border-radius: 8px;
+        border: 1px solid var(--cream);
+        box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
+        padding: 0.375rem 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .date-input:focus {
+        box-shadow: 0 0 0 3px rgba(106, 127, 245, 0.15);
+        border-color: var(--periwinkle);
+        outline: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
@@ -15,8 +277,101 @@
     </div>
 </div>
 
-{% if page_obj %}
-<div class="card">
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="filter-header">
+        <h3 class="filter-title"><i class="fas fa-filter me-2"></i>Filter Events</h3>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4 mb-md-0">
+            <div class="filter-group">
+                <div class="filter-label"><i class="fas fa-search"></i>Search</div>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="form-control search-input" placeholder="Search events..." id="event-search">
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="filter-group">
+                        <div class="filter-label"><i class="fas fa-tasks"></i>Status</div>
+                        <div class="filter-btn-group">
+                            <button type="button" class="filter-btn filter-btn-status active" data-filter="all">All</button>
+                            <button type="button" class="filter-btn filter-btn-status" data-filter="planned">Planned</button>
+                            <button type="button" class="filter-btn filter-btn-status" data-filter="in_progress">In Progress</button>
+                            <button type="button" class="filter-btn filter-btn-status" data-filter="completed">Completed</button>
+                            <button type="button" class="filter-btn filter-btn-status" data-filter="cancelled">Cancelled</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="filter-group">
+                        <div class="filter-label"><i class="fas fa-calendar"></i>Date Range</div>
+                        <div class="d-flex gap-2">
+                            <div>
+                                <input type="date" class="date-input" id="start-date" placeholder="Start Date">
+                            </div>
+                            <div>
+                                <input type="date" class="date-input" id="end-date" placeholder="End Date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group mt-3">
+                        <div class="filter-label"><i class="fas fa-clock"></i>Time Period</div>
+                        <div class="filter-btn-group">
+                            <button type="button" class="filter-btn filter-btn-date active" data-date="all">All</button>
+                            <button type="button" class="filter-btn filter-btn-date" data-date="today">Today</button>
+                            <button type="button" class="filter-btn filter-btn-date" data-date="week">This Week</button>
+                            <button type="button" class="filter-btn filter-btn-date" data-date="month">This Month</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Toggle -->
+<div class="view-toggle">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" id="list-view-btn">List View</button>
+        <button type="button" class="btn btn-outline-primary active" id="calendar-view-btn">Calendar View</button>
+    </div>
+</div>
+
+<!-- Calendar View -->
+<div class="calendar-view" id="calendar-container">
+    <div class="calendar-header">
+        <div class="calendar-nav">
+            <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <div class="calendar-title" id="calendar-month-year">April 2025</div>
+        <div class="calendar-nav">
+            <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="calendar-weekdays">
+        <div>Sun</div>
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div>Sat</div>
+    </div>
+    <div class="calendar-days" id="calendar-days">
+        <!-- Calendar days will be generated by JavaScript -->
+    </div>
+</div>
+
+<!-- List View (Hidden by default) -->
+<div class="card" id="list-container" style="display: none;">
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover">
@@ -30,9 +385,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="events-table-body">
                     {% for event in page_obj %}
-                    <tr>
+                    <tr class="event-row" data-event-id="{{ event.id }}" data-status="{{ event.status }}" data-start-date="{{ event.start_date|date:'Y-m-d' }}" data-end-date="{{ event.end_date|date:'Y-m-d' }}">
                         <td>{{ event.title }}</td>
                         <td>{{ event.start_date|date:"M d, Y h:i A" }}</td>
                         <td>{{ event.end_date|date:"M d, Y h:i A" }}</td>
@@ -61,8 +416,8 @@
     </div>
 </div>
 
-<!-- Pagination -->
-<div class="row mt-3">
+<!-- Pagination (Hidden in calendar view) -->
+<div class="row mt-3" id="pagination-container" style="display: none;">
     <div class="col-12">
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
@@ -129,9 +484,319 @@
         </nav>
     </div>
 </div>
-{% else %}
+
+{% if not page_obj %}
 <div class="alert alert-info">
     <p class="mb-0">No events found. <a href="{% url 'event_create' %}">Create your first event!</a></p>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // View toggle
+        const listViewBtn = document.getElementById('list-view-btn');
+        const calendarViewBtn = document.getElementById('calendar-view-btn');
+        const listContainer = document.getElementById('list-container');
+        const calendarContainer = document.getElementById('calendar-container');
+        const paginationContainer = document.getElementById('pagination-container');
+        
+        listViewBtn.addEventListener('click', function() {
+            listViewBtn.classList.add('active');
+            calendarViewBtn.classList.remove('active');
+            listContainer.style.display = 'block';
+            calendarContainer.style.display = 'none';
+            paginationContainer.style.display = 'block';
+        });
+        
+        calendarViewBtn.addEventListener('click', function() {
+            calendarViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            calendarContainer.style.display = 'block';
+            listContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+        });
+        
+        // Calendar functionality
+        const calendarDays = document.getElementById('calendar-days');
+        const monthYearDisplay = document.getElementById('calendar-month-year');
+        const prevMonthBtn = document.getElementById('prev-month');
+        const nextMonthBtn = document.getElementById('next-month');
+        
+        let currentDate = new Date();
+        let displayedMonth = currentDate.getMonth();
+        let displayedYear = currentDate.getFullYear();
+        
+        // Format events data for calendar
+        const events = [
+            {% for event in page_obj %}
+            { 
+                id: {{ event.id }},
+                date: '{{ event.start_date|date:"Y-m-d" }}', 
+                title: '{{ event.title|escapejs }}', 
+                status: '{{ event.status }}' 
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        console.log("Events data:", events); // Debug log
+        
+        // Search and filter functionality
+        const searchInput = document.getElementById('event-search');
+        const statusButtons = document.querySelectorAll('[data-filter]');
+        const dateButtons = document.querySelectorAll('[data-date]');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const eventRows = document.querySelectorAll('.event-row');
+        
+        let activeStatus = 'all';
+        let activeDate = 'all';
+        let customStartDate = null;
+        let customEndDate = null;
+        
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            applyFilters();
+        });
+        
+        // Status filter buttons
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                statusButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                activeStatus = this.getAttribute('data-filter');
+                applyFilters();
+            });
+        });
+        
+        // Date filter buttons
+        dateButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                dateButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                activeDate = this.getAttribute('data-date');
+                applyFilters();
+            });
+        });
+        
+        // Date inputs
+        startDateInput.addEventListener('change', function() {
+            customStartDate = this.value ? new Date(this.value) : null;
+            resetDateButtons();
+            applyFilters();
+        });
+        
+        endDateInput.addEventListener('change', function() {
+            customEndDate = this.value ? new Date(this.value) : null;
+            resetDateButtons();
+            applyFilters();
+        });
+        
+        function resetDateButtons() {
+            if (customStartDate || customEndDate) {
+                dateButtons.forEach(btn => btn.classList.remove('active'));
+                activeDate = 'custom';
+            }
+        }
+        
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            // Filter the table rows
+            eventRows.forEach(row => {
+                const title = row.querySelector('td:first-child').textContent.toLowerCase();
+                const status = row.getAttribute('data-status');
+                const startDate = new Date(row.getAttribute('data-start-date'));
+                
+                let matchesSearch = title.includes(searchTerm);
+                let matchesStatus = activeStatus === 'all' || status === activeStatus;
+                let matchesDate = checkDateFilter(startDate);
+                
+                if (matchesSearch && matchesStatus && matchesDate) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Re-render calendar with filtered events
+            renderCalendar(displayedMonth, displayedYear);
+        }
+        
+        function checkDateFilter(date) {
+            if (activeDate === 'all') {
+                return true;
+            }
+            
+            if (customStartDate && customEndDate) {
+                return date >= customStartDate && date <= customEndDate;
+            } else if (customStartDate) {
+                return date >= customStartDate;
+            } else if (customEndDate) {
+                return date <= customEndDate;
+            }
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            switch(activeDate) {
+                case 'today':
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(today.getDate() + 1);
+                    return date >= today && date < tomorrow;
+                case 'week':
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 7);
+                    return date >= weekStart && date < weekEnd;
+                case 'month':
+                    return date >= monthStart && date <= monthEnd;
+                default:
+                    return true;
+            }
+        }
+        
+        function renderCalendar(month, year) {
+            calendarDays.innerHTML = '';
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Update the month/year display
+            const monthNames = [
+                'January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            monthYearDisplay.textContent = `${monthNames[month]} ${year}`;
+            
+            // Get the starting day of the week (0 = Sunday, 6 = Saturday)
+            const startingDay = firstDay.getDay();
+            
+            // Generate the previous month's days
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDay - 1; i >= 0; i--) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.innerHTML = `
+                    <div class="calendar-day-number">${prevMonthLastDay - i}</div>
+                `;
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Generate the current month's days
+            const today = new Date();
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                // Mark current day
+                if (
+                    i === today.getDate() && 
+                    month === today.getMonth() && 
+                    year === today.getFullYear()
+                ) {
+                    dayElement.classList.add('current-day');
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="calendar-day-number">${i}</div>
+                `;
+                
+                // Format date string for comparison (YYYY-MM-DD)
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                // Apply all active filters to events
+                const filteredEvents = events.filter(event => {
+                    // Check if event matches the search term
+                    const matchesSearch = !searchInput.value || 
+                        event.title.toLowerCase().includes(searchInput.value.toLowerCase());
+                    
+                    // Check if event matches the selected status
+                    const matchesStatus = activeStatus === 'all' || event.status === activeStatus;
+                    
+                    // Check if the event matches the date filter
+                    const eventDate = new Date(event.date);
+                    const matchesDate = checkDateFilter(eventDate);
+                    
+                    // Check if event is on this calendar day
+                    const matchesCalendarDay = event.date.toLowerCase() === dateString.toLowerCase();
+                    
+                    return matchesSearch && matchesStatus && matchesDate && matchesCalendarDay;
+                });
+                
+                console.log(`Checking date ${dateString}, found ${filteredEvents.length} events`); // Debug log
+                
+                filteredEvents.forEach(event => {
+                    // Create event element
+                    const eventElement = document.createElement('div');
+                    
+                    // Default status color if status is missing or invalid
+                    let statusClass = 'bg-primary';
+                    
+                    // Map status to appropriate class
+                    if (event.status) {
+                        const status = event.status.replace(/_/g, '');
+                        if (['completed', 'inprogress', 'notstarted', 'cancelled', 'planned'].includes(status)) {
+                            statusClass = `bg-${status}`;
+                        }
+                    }
+                    
+                    eventElement.className = `calendar-event ${statusClass}`;
+                    eventElement.textContent = event.title || 'Untitled Event';
+                    eventElement.dataset.eventId = event.id;
+                    
+                    // Add click event to navigate to event detail
+                    eventElement.addEventListener('click', function() {
+                        window.location.href = `/dashboard/events/${event.id}/`;
+                    });
+                    
+                    dayElement.appendChild(eventElement);
+                });
+                
+                calendarDays.appendChild(dayElement);
+            }
+            
+            // Fill in the rest with next month's days
+            const totalCells = 42; // 6 rows of 7 days
+            const remainingCells = totalCells - (startingDay + lastDay.getDate());
+            for (let i = 1; i <= remainingCells; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.innerHTML = `
+                    <div class="calendar-day-number">${i}</div>
+                `;
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // Initial render
+        renderCalendar(displayedMonth, displayedYear);
+        
+        // Previous month
+        prevMonthBtn.addEventListener('click', function() {
+            displayedMonth--;
+            if (displayedMonth < 0) {
+                displayedMonth = 11;
+                displayedYear--;
+            }
+            renderCalendar(displayedMonth, displayedYear);
+        });
+        
+        // Next month
+        nextMonthBtn.addEventListener('click', function() {
+            displayedMonth++;
+            if (displayedMonth > 11) {
+                displayedMonth = 0;
+                displayedYear++;
+            }
+            renderCalendar(displayedMonth, displayedYear);
+        });
+    });
+</script>
 {% endblock %} 
