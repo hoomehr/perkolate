@@ -114,57 +114,152 @@
         <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
     </div>
     <div class="card-body">
-        <div id="target-notes-{{ target.id }}">
-            <!-- Notes will be loaded here via HTMX -->
-            {% if target.notes.all %}
-                <div class="mb-4">
-                    {% for note in target.notes.all %}
-                    {% with colors="blue,green,purple,orange,pink,teal,yellow" %}
-                    {% with color_list=colors|split:"," %}
-                    {% with note_color=color_list|random %}
-                    <div class="kanban-note note-card-{{ note_color }} mb-3">
-                        <div class="kanban-note-header">
-                            <span>{{ note.title }}</span>
-                            <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
-                        </div>
-                        <div class="kanban-note-content">
-                            {{ note.content }}
-                        </div>
-                        <div class="kanban-note-footer">
-                            <span>By: {{ note.created_by.username }}</span>
-                            <div>
-                                <span class="badge" style="background-color: var(--ios-green);">
-                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
-                                </span>
-                                <span class="badge" style="background-color: var(--ios-red);">
-                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
-                                </span>
-                            </div>
+        <!-- Messages Container -->
+        <div id="notes-messages"></div>
+        
+        <!-- Notes Container -->
+        <div id="notes-list-{{ target.id }}" class="mb-4">
+            {% if notes %}
+                {% for note in notes reversed %}
+                <div class="kanban-note note-card-{% cycle 'blue' 'green' 'purple' 'orange' 'pink' 'teal' 'yellow' %} mb-3 animate__animated animate__fadeInRight animate__faster">
+                    <div class="kanban-note-header">
+                        <span>{{ note.title }}</span>
+                        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="kanban-note-content">
+                        {{ note.content }}
+                    </div>
+                    <div class="kanban-note-footer">
+                        <span>By: {{ note.created_by.username }}</span>
+                        <div>
+                            <button hx-post="{% url 'htmx_note_upvote' note_id=note.id %}"
+                                    hx-target="#note-{{ note.id }}-votes"
+                                    class="btn btn-sm {% if user_votes|get_item:note.id == 'up' %}btn-success{% else %}btn-outline-success{% endif %}">
+                                <i class="fas fa-thumbs-up"></i>
+                            </button>
+                            <button hx-post="{% url 'htmx_note_downvote' note_id=note.id %}"
+                                    hx-target="#note-{{ note.id }}-votes"
+                                    class="btn btn-sm {% if user_votes|get_item:note.id == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
+                            <span class="badge" style="background-color: var(--ios-green);">
+                                <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count|default:0 }}
+                            </span>
+                            <span class="badge" style="background-color: var(--ios-red);">
+                                <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count|default:0 }}
+                            </span>
                         </div>
                     </div>
-                    {% endwith %}
-                    {% endwith %}
-                    {% endwith %}
-                    {% endfor %}
+                    <div id="note-{{ note.id }}-votes" class="d-none">
+                        <!-- This div is used for HTMX updates -->
+                    </div>
                 </div>
+                {% endfor %}
             {% else %}
                 <div class="text-center py-4">
                     <p class="text-muted">No notes yet for this target.</p>
                 </div>
             {% endif %}
-            
-            <!-- Add Note Form -->
-            <form class="mt-4" hx-post="{% url 'htmx_add_note' pk=target.id %}" hx-target="#target-notes-{{ target.id }}" hx-swap="outerHTML">
-                {% csrf_token %}
-                <div class="form-floating mb-3">
-                    <textarea class="form-control" id="noteContent" name="content" style="height: 100px" placeholder="Add a note about this target..." required></textarea>
-                    <label for="noteContent">Add a note...</label>
-                </div>
-                <button type="submit" class="btn" style="background-color: var(--ios-purple); color: white;">
-                    <i class="fas fa-plus me-2"></i>Add Note
-                </button>
-            </form>
         </div>
+            
+        <!-- Add Note Form -->
+        <form id="noteForm" class="mt-4" 
+              hx-post="{% url 'htmx_add_note' pk=target.id %}" 
+              hx-target="#notes-list-{{ target.id }}"
+              hx-swap="beforeend"
+              hx-indicator="#note-submit-indicator"
+              hx-on::after-request="if(event.detail.successful) this.reset();">
+            {% csrf_token %}
+            <div class="form-floating mb-3">
+                <textarea class="form-control" id="noteContent" name="content" style="height: 100px" placeholder="Add a note about this target..." required></textarea>
+                <label for="noteContent">Add a note...</label>
+            </div>
+            <button type="submit" id="noteSubmitBtn" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Note
+                <span id="note-submit-indicator" class="htmx-indicator">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Adding...
+                </span>
+            </button>
+        </form>
     </div>
 </div>
+
+<!-- Add animation styles at the end of the file -->
+<style>
+    /* Animation classes */
+    .animate__animated {
+        animation-duration: 0.5s;
+        animation-fill-mode: both;
+    }
+    
+    .animate__fadeInRight {
+        animation-name: fadeInRight;
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translate3d(100%, 0, 0);
+        }
+        
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    .animate__faster {
+        animation-duration: 0.3s;
+    }
+    
+    /* Highlight for new notes */
+    .highlight-new {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        border: 2px solid gold;
+    }
+    
+    /* Special color for new notes */
+    .highlight-new.note-card-blue {
+        background-color: #e6f7ff;
+    }
+    .highlight-new.note-card-green {
+        background-color: #e6ffe6;
+    }
+    .highlight-new.note-card-purple {
+        background-color: #f2e6ff;
+    }
+    .highlight-new.note-card-orange {
+        background-color: #fff2e6;
+    }
+    .highlight-new.note-card-pink {
+        background-color: #ffe6f2;
+    }
+    .highlight-new.note-card-teal {
+        background-color: #e6fff9;
+    }
+    .highlight-new.note-card-yellow {
+        background-color: #fffff0;
+    }
+</style>
+
+<script>
+    // Handle message display
+    document.body.addEventListener('showMessage', function(evt) {
+        const messagesContainer = document.getElementById('notes-messages');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = evt.detail.value;
+            // Auto-hide messages after 3 seconds
+            setTimeout(function() {
+                const alerts = messagesContainer.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.classList.remove('show');
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 150);
+                });
+            }, 3000);
+        }
+    });
+</script>
 {% endblock %} 

@@ -1,0 +1,68 @@
+{% load event_tags %}
+<!-- Notes Section -->
+<div id="target-notes" class="space-y-4">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Add Note Form -->
+    <form class="note-form" hx-post="{% url 'htmx_add_note' pk=target.id %}"
+          hx-target="#target-notes"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        <div class="form-floating mb-3">
+            <textarea class="form-control" name="content" style="height: 100px" placeholder="Add a note..." required></textarea>
+            <label>Add a note...</label>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add Note
+        </button>
+    </form>
+
+    <!-- Notes List -->
+    <div class="mt-4">
+        {% for note in notes %}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="card-title mb-0">{{ note.title }}</h5>
+                    <small class="text-muted">
+                        Created by {{ note.created_by.username }} on {{ note.created_at|date:"F j, Y" }}
+                    </small>
+                </div>
+                <div class="btn-group">
+                    <button hx-post="{% url 'htmx_note_upvote' note_id=note.id %}"
+                            hx-target="#note-{{ note.id }}-votes"
+                            class="btn btn-sm {% if user_votes|get_item:note.id == 'up' %}btn-success{% else %}btn-outline-success{% endif %}">
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                    <button hx-post="{% url 'htmx_note_downvote' note_id=note.id %}"
+                            hx-target="#note-{{ note.id }}-votes"
+                            class="btn btn-sm {% if user_votes|get_item:note.id == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ note.content }}</p>
+            </div>
+            <div class="card-footer">
+                <div id="note-{{ note.id }}-votes" class="d-flex gap-3">
+                    <span class="text-muted">Score: {{ note.score }}</span>
+                    <span class="text-muted">Upvotes: {{ note.upvotes_count|default:0 }}</span>
+                    <span class="text-muted">Downvotes: {{ note.downvotes_count|default:0 }}</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-4">
+            <p class="text-muted">No notes yet. Be the first to add one!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div> 

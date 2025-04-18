@@ -19,6 +19,7 @@ class Event(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    targets = models.ManyToManyField('Target', related_name='events', blank=True)
 
     def __str__(self):
         return self.title
@@ -75,7 +76,8 @@ class Note(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_notes')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='notes', null=True, blank=True)
+    events = models.ManyToManyField(Event, related_name='related_notes', blank=True)
+    target = models.ForeignKey('Target', on_delete=models.SET_NULL, related_name='notes', null=True, blank=True)
     
     def __str__(self):
         return self.title
@@ -107,4 +109,20 @@ class NoteVote(models.Model):
     
     class Meta:
         unique_together = ('note', 'user')
+        ordering = ['-created_at']
+
+
+class Comment(models.Model):
+    """Model for comments on notes"""
+    
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='note_comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.note.title}"
+    
+    class Meta:
         ordering = ['-created_at']

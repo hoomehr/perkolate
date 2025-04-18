@@ -1,0 +1,130 @@
+{% load event_tags %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="kanban-note note-card-{% cycle 'blue' 'green' 'purple' 'orange' 'pink' 'teal' 'yellow' %} mb-3 animate__animated animate__fadeInRight animate__faster highlight-new">
+    <div class="kanban-note-header">
+        <span>{{ note.title }}</span>
+        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+    </div>
+    <div class="kanban-note-content">
+        {{ note.content }}
+    </div>
+    <div class="kanban-note-footer">
+        <span>By: {{ note.created_by.username }}</span>
+        <div>
+            <button hx-post="{% url 'htmx_note_upvote' note_id=note.id %}"
+                    hx-target="#note-{{ note.id }}-votes"
+                    class="btn btn-sm {% if user_votes|get_item:note.id == 'up' %}btn-success{% else %}btn-outline-success{% endif %}">
+                <i class="fas fa-thumbs-up"></i>
+            </button>
+            <button hx-post="{% url 'htmx_note_downvote' note_id=note.id %}"
+                    hx-target="#note-{{ note.id }}-votes"
+                    class="btn btn-sm {% if user_votes|get_item:note.id == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                <i class="fas fa-thumbs-down"></i>
+            </button>
+            <span class="badge" style="background-color: var(--ios-green);">
+                <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count|default:0 }}
+            </span>
+            <span class="badge" style="background-color: var(--ios-red);">
+                <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count|default:0 }}
+            </span>
+        </div>
+    </div>
+    <div id="note-{{ note.id }}-votes" class="d-none">
+        <!-- This div is used for HTMX updates -->
+    </div>
+</div>
+
+<style>
+    /* Animation classes */
+    .animate__animated {
+        animation-duration: 0.5s;
+        animation-fill-mode: both;
+    }
+    
+    .animate__fadeInRight {
+        animation-name: fadeInRight;
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translate3d(100%, 0, 0);
+        }
+        
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+    
+    .animate__faster {
+        animation-duration: 0.3s;
+    }
+    
+    /* Highlight for new notes */
+    .highlight-new {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        border: 2px solid gold;
+    }
+    
+    /* Special color for new notes */
+    .highlight-new.note-card-blue {
+        background-color: #e6f7ff;
+    }
+    .highlight-new.note-card-green {
+        background-color: #e6ffe6;
+    }
+    .highlight-new.note-card-purple {
+        background-color: #f2e6ff;
+    }
+    .highlight-new.note-card-orange {
+        background-color: #fff2e6;
+    }
+    .highlight-new.note-card-pink {
+        background-color: #ffe6f2;
+    }
+    .highlight-new.note-card-teal {
+        background-color: #e6fff9;
+    }
+    .highlight-new.note-card-yellow {
+        background-color: #fffff0;
+    }
+</style>
+
+<script>
+    // Remove highlight after animation completes
+    document.addEventListener('animationend', function(event) {
+        if (event.target.classList.contains('highlight-new')) {
+            setTimeout(function() {
+                event.target.classList.remove('highlight-new');
+            }, 3000); // Keep highlight for 3 seconds
+        }
+    });
+
+    // Handle the message display
+    document.body.addEventListener('showMessage', function(evt) {
+        const messagesContainer = document.getElementById('notes-messages');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = evt.detail.value;
+            // Auto-hide messages after 3 seconds
+            setTimeout(function() {
+                const alerts = messagesContainer.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.classList.remove('show');
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 150);
+                });
+            }, 3000);
+        }
+    });
+</script> 

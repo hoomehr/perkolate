@@ -1,108 +1,195 @@
 {% extends 'base.html' %}
+{% load event_tags %}
 
-{% block title %}{{ note.title }} | Perkolate{% endblock %}
+{% block title %}{{ note.title }} | Note Details | Perkolate{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Note Header -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2>{{ note.title }}</h2>
+            <p class="text-muted">
+                Posted by {{ note.created_by.get_full_name|default:note.created_by.username }} 
+                on {{ note.created_at|date:"F d, Y" }} at {{ note.created_at|time:"g:i A" }}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'note_board' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Notes
+            </a>
+            
+            {% if note.created_by == user or user.is_staff or user.profile.role == 'admin' %}
+            <div class="btn-group mt-2">
+                <a href="{% url 'note_update' note.pk %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'note_delete' note.pk %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Note Content Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="mb-4">
+                {{ note.content|linebreaks }}
+            </div>
+            
+            <hr>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="btn-group" role="group">
+                        <button type="button" 
+                                class="btn btn-outline-success vote-btn {% if user_vote == 'upvote' %}active{% endif %}"
+                                hx-post="{% url 'htmx_note_upvote' note_id=note.pk %}"
+                                hx-target="#note-votes"
+                                hx-swap="innerHTML">
+                            <i class="fas fa-thumbs-up"></i> 
+                            <span id="upvotes-count">{{ note.upvotes_count }}</span>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-outline-danger vote-btn {% if user_vote == 'downvote' %}active{% endif %}"
+                                hx-post="{% url 'htmx_note_downvote' note_id=note.pk %}"
+                                hx-target="#note-votes"
+                                hx-swap="innerHTML">
+                            <i class="fas fa-thumbs-down"></i> 
+                            <span id="downvotes-count">{{ note.downvotes_count }}</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="note-votes" class="d-flex gap-3">
+                    <span class="text-muted">Score: {{ note.score }}</span>
+                    <span class="text-muted">Upvotes: {{ note.upvotes_count|default:0 }}</span>
+                    <span class="text-muted">Downvotes: {{ note.downvotes_count|default:0 }}</span>
+                </div>
+                
+                <div>
+                    {% if note.updated_at > note.created_at %}
+                    <small class="text-muted">
+                        Last updated on {{ note.updated_at|date:"F d, Y" }} at {{ note.updated_at|time:"g:i A" }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Associated Target Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Associated Target</h5>
+        </div>
+        <div class="card-body">
+            {% if target %}
+            <div class="list-group">
+                <a href="{% url 'target_detail' target.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ target.name }}</h5>
+                        <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
+                    </div>
+                    <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
+                    <small class="text-muted">
+                        Assigned to: {{ target.assignee.get_full_name|default:target.assignee.username }}
+                    </small>
+                </a>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h5>No associated target</h5>
+                <p class="text-muted mb-3">This note is not associated with any target</p>
+                <a href="{% url 'target_create' %}" class="btn btn-primary">Create Target</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Events Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Related Events</h5>
+        </div>
+        <div class="card-body">
+            {% if related_events %}
+            <div class="list-group">
+                {% for event in related_events %}
+                <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ event.title }}</h5>
+                        <span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span>
+                    </div>
+                    <p class="mb-1">{{ event.description|truncatechars:100 }}</p>
+                    <small class="text-muted">
+                        {{ event.start_date|date:"M d, Y" }}
+                        {% if event.end_date %} - {{ event.end_date|date:"M d, Y" }}{% endif %}
+                    </small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <h5>No related events</h5>
+                <p class="text-muted mb-3">This note is not associated with any events</p>
+                <a href="{% url 'event_create' %}" class="btn btn-primary">Create Event</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-comments me-2"></i>Comments</h5>
+        </div>
+        <div class="card-body">
+            <div id="comments-section">
+                <!-- Comments will be loaded here via HTMX -->
+                {% include "events/partials/note_comments.html" with comments=note.comments.all %}
+            </div>
+            
+            <!-- Add Comment Form -->
+            <form class="mt-4" 
+                  hx-post="{% url 'htmx_add_comment' note_id=note.pk %}" 
+                  hx-target="#comments-section"
+                  hx-swap="innerHTML">
+                {% csrf_token %}
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" 
+                             id="commentContent" 
+                             name="content" 
+                             style="height: 100px" 
+                             placeholder="Add a comment..." 
+                             required></textarea>
+                    <label for="commentContent">Add a comment...</label>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Comment
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const voteButtons = document.querySelectorAll('.vote-btn');
-        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-        
-        voteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const voteType = this.getAttribute('data-vote-type');
-                const noteId = this.getAttribute('data-note-id');
-                
-                fetch(`/dashboard/notes/${noteId}/vote/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: `vote_type=${voteType}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update vote counts
-                        document.getElementById('upvotes-count').textContent = data.upvotes;
-                        document.getElementById('downvotes-count').textContent = data.downvotes;
-                        
-                        // Update button active states
-                        voteButtons.forEach(btn => btn.classList.remove('active'));
-                        
-                        if (voteType !== 'remove') {
-                            this.classList.add('active');
-                        }
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+        // Re-initialize any Bootstrap components after HTMX swaps
+        var tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltips.map(function (tooltip) {
+            return new bootstrap.Tooltip(tooltip);
         });
     });
 </script>
-{% endblock %}
-
-{% block content %}
-{% csrf_token %}
-<div class="row mb-3">
-    <div class="col-md-8">
-        <h2>{{ note.title }}</h2>
-        <p class="text-muted">
-            Posted by {{ note.created_by.get_full_name|default:note.created_by.username }} 
-            on {{ note.created_at|date:"F d, Y" }} at {{ note.created_at|time:"g:i A" }}
-        </p>
-    </div>
-    <div class="col-md-4 text-end">
-        <a href="{% url 'note_board' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Notes
-        </a>
-        
-        {% if note.created_by == user or user.is_staff or user.profile.role == 'admin' %}
-        <div class="btn-group mt-2">
-            <a href="{% url 'note_update' note.pk %}" class="btn btn-outline-primary">
-                <i class="fas fa-edit"></i> Edit
-            </a>
-            <a href="{% url 'note_delete' note.pk %}" class="btn btn-outline-danger">
-                <i class="fas fa-trash"></i> Delete
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-body">
-        <div class="mb-4">
-            {{ note.content|linebreaks }}
-        </div>
-        
-        <hr>
-        
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-success vote-btn {% if user_vote == 'upvote' %}active{% endif %}" 
-                            data-vote-type="upvote" data-note-id="{{ note.pk }}">
-                        <i class="fas fa-thumbs-up"></i> 
-                        <span id="upvotes-count">{{ note.upvotes_count }}</span>
-                    </button>
-                    <button type="button" class="btn btn-outline-danger vote-btn {% if user_vote == 'downvote' %}active{% endif %}" 
-                            data-vote-type="{% if user_vote == 'downvote' %}remove{% else %}downvote{% endif %}" data-note-id="{{ note.pk }}">
-                        <i class="fas fa-thumbs-down"></i>
-                        <span id="downvotes-count">{{ note.downvotes_count }}</span>
-                    </button>
-                </div>
-            </div>
-            
-            <div>
-                {% if note.updated_at > note.created_at %}
-                <small class="text-muted">
-                    Last updated on {{ note.updated_at|date:"F d, Y" }} at {{ note.updated_at|time:"g:i A" }}
-                </small>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %} 

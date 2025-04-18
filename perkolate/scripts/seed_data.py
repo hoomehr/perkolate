@@ -7,57 +7,54 @@ from django.utils import timezone
 
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'perkolate.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 # Import models
 from django.contrib.auth.models import User
-from accounts.models import UserProfile
-from events.models import Event, Target
+from apps.accounts.models import UserProfile
+from apps.events.models import Event, Target
 
 def create_users():
     """Create sample users with different roles"""
-    # Admin user (already created with createsuperuser)
-    admin = User.objects.get(username='admin')
-    admin.first_name = 'Admin'
-    admin.last_name = 'User'
+    # Create or get admin user
+    admin, _ = User.objects.get_or_create(
+        username='admin',
+        defaults={
+            'first_name': 'Admin',
+            'last_name': 'User',
+            'is_staff': True,
+            'is_superuser': True
+        }
+    )
+    admin.set_password('admin123')
     admin.save()
     
-    # Set admin role
-    admin_profile = admin.profile
-    admin_profile.role = 'admin'
-    admin_profile.department = 'Management'
-    admin_profile.phone_number = '555-123-4567'
-    admin_profile.save()
-    
-    # Create manager user
-    manager = User.objects.create_user(
+    # Create or get manager user
+    manager, _ = User.objects.get_or_create(
         username='manager',
-        email='manager@example.com',
-        password='manager123',
-        first_name='Manager',
-        last_name='User'
+        defaults={
+            'first_name': 'Manager',
+            'last_name': 'User',
+            'email': 'manager@example.com'
+        }
     )
-    manager_profile = manager.profile
-    manager_profile.role = 'manager'
-    manager_profile.department = 'Operations'
-    manager_profile.phone_number = '555-987-6543'
-    manager_profile.save()
+    manager.set_password('manager123')
+    manager.save()
     
-    # Create employee users
+    # Create or get employee users
     employees = []
     for i in range(1, 4):
-        employee = User.objects.create_user(
+        employee, _ = User.objects.get_or_create(
             username=f'employee{i}',
-            email=f'employee{i}@example.com',
-            password='employee123',
-            first_name=f'Employee{i}',
-            last_name='User'
+            defaults={
+                'first_name': f'Employee{i}',
+                'last_name': 'User',
+                'email': f'employee{i}@example.com'
+            }
         )
-        employee_profile = employee.profile
-        employee_profile.role = 'employee'
-        employee_profile.department = random.choice(['Marketing', 'Sales', 'IT', 'HR'])
-        employee_profile.save()
+        employee.set_password('employee123')
+        employee.save()
         employees.append(employee)
     
     return admin, manager, employees
@@ -65,6 +62,9 @@ def create_users():
 def create_events(users):
     """Create sample events"""
     admin, manager, employees = users
+    
+    # Clear existing events
+    Event.objects.all().delete()
     
     # Sample event titles and descriptions
     event_data = [
@@ -118,6 +118,9 @@ def create_events(users):
 def create_targets(users):
     """Create sample targets"""
     admin, manager, employees = users
+    
+    # Clear existing targets
+    Target.objects.all().delete()
     
     # Sample target names and descriptions
     target_data = [

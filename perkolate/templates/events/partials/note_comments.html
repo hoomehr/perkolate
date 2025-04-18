@@ -1,0 +1,48 @@
+{% load static %}
+
+<div class="mt-4 space-y-4">
+    {% if note.comments.all %}
+        <div class="space-y-3">
+            {% for comment in note.comments.all %}
+                <div class="flex space-x-3 bg-gray-50 p-3 rounded-lg">
+                    <div class="flex-shrink-0">
+                        <img class="h-8 w-8 rounded-full" src="{% static 'images/default-avatar.png' %}" alt="{{ comment.user.username }}">
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-medium">{{ comment.user.username }}</h3>
+                            <p class="text-sm text-gray-500">{{ comment.created_at|timesince }} ago</p>
+                        </div>
+                        <p class="text-sm text-gray-700">{{ comment.content }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form hx-post="{% url 'htmx_add_comment' note_id=note.id %}"
+          hx-target="closest div"
+          class="mt-4">
+        {% csrf_token %}
+        <div class="flex space-x-3">
+            <div class="flex-shrink-0">
+                <img class="h-8 w-8 rounded-full" src="{% static 'images/default-avatar.png' %}" alt="{{ user.username }}">
+            </div>
+            <div class="flex-1">
+                <div class="flex items-start space-x-4">
+                    <div class="min-w-0 flex-1">
+                        <textarea name="content" rows="3"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                placeholder="Add a comment..."></textarea>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <button type="submit"
+                                class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div> 

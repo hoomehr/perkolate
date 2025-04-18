@@ -29,8 +29,10 @@ class NoteForm(forms.ModelForm):
     
     class Meta:
         model = Note
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'events', 'target']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'events': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'target': forms.Select(attrs={'class': 'form-control'}),
         } 

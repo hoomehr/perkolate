@@ -6,12 +6,12 @@ from datetime import datetime, timedelta
 
 # Set up Django environment
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'perkolate.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 # Import models
 from django.contrib.auth.models import User
-from events.models import Note, NoteVote
+from apps.events.models import Note, NoteVote
 
 def create_dummy_notes():
     """Create sample notes with random content"""
@@ -21,6 +21,10 @@ def create_dummy_notes():
     if users.count() < 3:
         print("Not enough users in the database. Please run the main seed script first.")
         return
+    
+    # Clear existing notes and votes
+    NoteVote.objects.all().delete()
+    Note.objects.all().delete()
     
     # Sample note data
     note_data = [

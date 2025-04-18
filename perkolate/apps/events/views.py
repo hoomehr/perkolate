@@ -6,9 +6,10 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.contrib.auth import get_user_model
-from .models import Event, Target, Note, NoteVote
+from .models import Event, Target, Note, NoteVote, Comment
 from .forms import EventForm, TargetForm, NoteForm
 from datetime import datetime, date, timedelta
+import json
 
 User = get_user_model()
 
@@ -54,7 +55,23 @@ def event_list(request):
 def event_detail(request, pk):
     """Display details of a specific event"""
     event = get_object_or_404(Event, pk=pk)
-    return render(request, 'events/event_detail.html', {'event': event})
+    # Get all related notes ordered by creation date (newest first)
+    notes = event.related_notes.all().order_by('-created_at')
+    targets = event.targets.all()
+    
+    # Get user votes for notes
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note__in=notes, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
+    
+    context = {
+        'event': event,
+        'notes': notes,
+        'targets': targets,
+        'user_votes': user_votes,
+    }
+    return render(request, 'events/event_detail.html', context)
 
 @login_required
 def event_create(request):
@@ -132,7 +149,23 @@ def target_list(request):
 def target_detail(request, pk):
     """Display details of a specific target"""
     target = get_object_or_404(Target, pk=pk)
-    return render(request, 'events/target_detail.html', {'target': target})
+    # Get all related notes ordered by creation date (newest first)
+    notes = Note.objects.filter(target=target).order_by('-created_at')
+    events = target.events.all()
+    
+    # Get user votes for notes
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note__in=notes, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
+    
+    context = {
+        'target': target,
+        'notes': notes,
+        'events': events,
+        'user_votes': user_votes,
+    }
+    return render(request, 'events/target_detail.html', context)
 
 @login_required
 def target_create(request):
@@ -223,15 +256,15 @@ def note_detail(request, pk):
     note = get_object_or_404(Note, pk=pk)
     user_vote = None
     if request.user.is_authenticated:
-        try:
-            user_vote = NoteVote.objects.get(note=note, user=request.user).vote_type
-        except NoteVote.DoesNotExist:
-            pass
+        user_vote = NoteVote.objects.filter(note=note, user=request.user).first()
     
-    return render(request, 'events/note_detail.html', {
+    context = {
         'note': note,
-        'user_vote': user_vote
-    })
+        'user_vote': user_vote,
+        'related_events': note.events.all(),
+        'target': note.target,
+    }
+    return render(request, 'events/note_detail.html', context)
 
 @login_required
 def note_create(request):
@@ -242,6 +275,8 @@ def note_create(request):
             note = form.save(commit=False)
             note.created_by = request.user
             note.save()
+            # Save many-to-many relationships
+            form.save_m2m()
             messages.success(request, 'Note posted successfully!')
             return redirect('note_detail', pk=note.pk)
     else:
@@ -458,111 +493,50 @@ def htmx_vote_note(request, pk):
 
 @login_required
 def htmx_note_upvote(request, note_id):
-    note = get_object_or_404(Note, pk=note_id)
+    note = get_object_or_404(Note, id=note_id)
+    user = request.user
     
-    # Check if user already has a vote
-    try:
-        vote = NoteVote.objects.get(note=note, user=request.user)
-        
-        if vote.vote_type == 'up':
-            # User is un-upvoting
-            vote.delete()
-            user_vote = None
-        else:
-            # User is changing from down to up
-            vote.vote_type = 'up'
-            vote.save()
-            user_vote = 'up'
-    except NoteVote.DoesNotExist:
-        # Create a new upvote
-        NoteVote.objects.create(note=note, user=request.user, vote_type='up')
-        user_vote = 'up'
+    # Remove any existing downvote
+    note.votes.filter(user=user, vote_type='downvote').delete()
     
-    # Count votes
-    upvotes = NoteVote.objects.filter(note=note, vote_type='up').count()
-    downvotes = NoteVote.objects.filter(note=note, vote_type='down').count()
+    # Toggle upvote
+    upvote = note.votes.filter(user=user, vote_type='upvote').first()
+    if upvote:
+        upvote.delete()
+    else:
+        NoteVote.objects.create(user=user, note=note, vote_type='upvote')
     
-    context = {
-        'note': note,
-        'user_vote': user_vote,
-        'upvotes': upvotes,
-        'downvotes': downvotes
-    }
-    
-    return render(request, 'events/partials/vote_buttons.html', context)
+    return render(request, 'events/partials/note_votes.html', {'note': note})
 
 @login_required
 def htmx_note_downvote(request, note_id):
-    note = get_object_or_404(Note, pk=note_id)
+    note = get_object_or_404(Note, id=note_id)
+    user = request.user
     
-    # Check if user already has a vote
-    try:
-        vote = NoteVote.objects.get(note=note, user=request.user)
-        
-        if vote.vote_type == 'down':
-            # User is un-downvoting
-            vote.delete()
-            user_vote = None
-        else:
-            # User is changing from up to down
-            vote.vote_type = 'down'
-            vote.save()
-            user_vote = 'down'
-    except NoteVote.DoesNotExist:
-        # Create a new downvote
-        NoteVote.objects.create(note=note, user=request.user, vote_type='down')
-        user_vote = 'down'
+    # Remove any existing upvote
+    note.votes.filter(user=user, vote_type='upvote').delete()
     
-    # Count votes
-    upvotes = NoteVote.objects.filter(note=note, vote_type='up').count()
-    downvotes = NoteVote.objects.filter(note=note, vote_type='down').count()
+    # Toggle downvote
+    downvote = note.votes.filter(user=user, vote_type='downvote').first()
+    if downvote:
+        downvote.delete()
+    else:
+        NoteVote.objects.create(user=user, note=note, vote_type='downvote')
     
-    context = {
-        'note': note,
-        'user_vote': user_vote,
-        'upvotes': upvotes,
-        'downvotes': downvotes
-    }
-    
-    return render(request, 'events/partials/vote_buttons.html', context)
+    return render(request, 'events/partials/note_votes.html', {'note': note})
 
 @login_required
-def htmx_add_note(request, pk):
-    """Add a note to an event via HTMX"""
-    if not request.headers.get('HX-Request') or request.method != 'POST':
-        return JsonResponse({'error': 'Invalid request'}, status=400)
-    
-    event = get_object_or_404(Event, pk=pk)
-    content = request.POST.get('content')
-    
-    if not content:
-        return JsonResponse({'error': 'Content is required'}, status=400)
-    
-    # Create the note
-    note = Note.objects.create(
-        title=f"Note for {event.title}",
-        content=content,
-        created_by=request.user,
-        event=event
-    )
-    
-    # Get all notes for this event
-    notes = Note.objects.filter(event=event).order_by('-created_at')
-    
-    # Create a dictionary of user votes for these notes
-    user_votes = {}
-    if request.user.is_authenticated:
-        votes = NoteVote.objects.filter(note__in=notes, user=request.user)
-        for vote in votes:
-            user_votes[vote.note.id] = vote
-    
-    context = {
-        'event': event,
-        'notes': notes,
-        'user_votes': user_votes
-    }
-    
-    return render(request, 'events/partials/event_notes.html', context)
+def htmx_add_comment(request, note_id):
+    note = get_object_or_404(Note, id=note_id)
+    if request.method == "POST":
+        content = request.POST.get('content')
+        if content:
+            comment = Comment.objects.create(
+                note=note,
+                user=request.user,
+                content=content
+            )
+    return render(request, 'events/partials/note_comments.html', {'note': note})
 
 @login_required
 def htmx_get_notes(request, pk):
@@ -571,22 +545,90 @@ def htmx_get_notes(request, pk):
         return redirect('event_detail', pk=pk)
     
     event = get_object_or_404(Event, pk=pk)
-    notes = Note.objects.filter(event=event).order_by('-created_at')
+    notes = event.related_notes.all().order_by('-created_at')
     
     # Create a dictionary of user votes for these notes
     user_votes = {}
     if request.user.is_authenticated:
         votes = NoteVote.objects.filter(note__in=notes, user=request.user)
-        for vote in votes:
-            user_votes[vote.note.id] = vote
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
     
     context = {
         'event': event,
         'notes': notes,
-        'user_votes': user_votes
+        'user_votes': user_votes,
+        'messages': messages.get_messages(request)
     }
     
     return render(request, 'events/partials/event_notes.html', context)
+
+@login_required
+def htmx_add_note(request, pk):
+    """Add a note to an event or target via HTMX"""
+    if not request.headers.get('HX-Request') or request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    
+    content = request.POST.get('content')
+    if not content:
+        return JsonResponse({'error': 'Content is required'}, status=400)
+    
+    # Try to get event or target
+    try:
+        event = Event.objects.get(pk=pk)
+        target = None
+        title = f"Note for {event.title}"
+        template = 'events/partials/new_note.html'
+    except Event.DoesNotExist:
+        try:
+            target = Target.objects.get(pk=pk)
+            event = None
+            title = f"Note for {target.name}"
+            template = 'events/partials/new_note.html'
+        except Target.DoesNotExist:
+            return JsonResponse({'error': 'Event or target not found'}, status=404)
+    
+    # Create the note
+    note = Note.objects.create(
+        title=title,
+        content=content,
+        created_by=request.user,
+        target=target  # Set target directly if it exists
+    )
+    
+    # Add event association if it exists
+    if event:
+        note.events.add(event)
+    
+    # Get user votes for this note
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note=note, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
+    
+    # Add success message
+    messages.success(request, 'Note added successfully!')
+    
+    # Return only the new note
+    context = {
+        'event': event,
+        'target': target,
+        'note': note,  # Pass single note instead of list
+        'user_votes': user_votes,
+        'is_new_note': True  # Flag to indicate this is a new note
+    }
+    
+    # Render the message separately
+    message_response = render(request, 'events/partials/messages.html', {'messages': messages.get_messages(request)})
+    
+    # Render the new note
+    note_response = render(request, template, context)
+    
+    # Set headers to trigger message update and refresh notes list
+    note_response['HX-Trigger'] = json.dumps({
+        'showMessage': message_response.content.decode('utf-8')
+    })
+    
+    return note_response
 
 @login_required
 def weekly_calendar(request):

@@ -1,0 +1,21 @@
+{% load static %}
+
+<div class="flex items-center space-x-2">
+    <button class="p-1 rounded hover:bg-gray-100 {% if user in note.upvoters.all %}text-green-600{% endif %}"
+            hx-post="{% url 'htmx_note_upvote' note_id=note.id %}"
+            hx-target="closest div">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+    </button>
+    <span class="text-sm font-medium">{{ note.upvotes }}</span>
+    
+    <button class="p-1 rounded hover:bg-gray-100 {% if user in note.downvoters.all %}text-red-600{% endif %}"
+            hx-post="{% url 'htmx_note_downvote' note_id=note.id %}"
+            hx-target="closest div">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+    </button>
+    <span class="text-sm font-medium">{{ note.downvotes }}</span>
+</div> 

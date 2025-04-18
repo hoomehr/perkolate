@@ -38,8 +38,9 @@ urlpatterns = [
     path('htmx/targets/', views.htmx_target_list, name='htmx_target_list'),
     path('htmx/notes/', views.htmx_note_list, name='htmx_note_list'),
     path('htmx/notes/<int:pk>/vote/', views.htmx_vote_note, name='htmx_vote_note'),
-    path('htmx/events/<int:pk>/add-note/', views.htmx_add_note, name='htmx_add_note'),
+    path('htmx/add-note/<int:pk>/', views.htmx_add_note, name='htmx_add_note'),
     path('htmx/events/<int:pk>/notes/', views.htmx_get_notes, name='htmx_get_notes'),
     path('htmx/notes/<int:note_id>/upvote/', views.htmx_note_upvote, name='htmx_note_upvote'),
     path('htmx/notes/<int:note_id>/downvote/', views.htmx_note_downvote, name='htmx_note_downvote'),
+    path('htmx/notes/<int:note_id>/add-comment/', views.htmx_add_comment, name='htmx_add_comment'),
 ] 
