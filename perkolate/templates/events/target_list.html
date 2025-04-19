@@ -6,42 +6,72 @@
 <style>
     .targets-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 24px;
         margin-bottom: 30px;
+    }
+    
+    @media (max-width: 400px) {
+        .targets-grid {
+            grid-template-columns: 1fr;
+        }
     }
     
     .target-card {
         border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         height: 100%;
         background: white;
         border: none;
-        border-left: 4px solid var(--periwinkle);
+        border-right: 5px solid var(--periwinkle);
+        border-bottom: 5px solid var(--periwinkle);
         position: relative;
         overflow: hidden;
+        transform-origin: center top;
+        padding: 0;
     }
     
     .target-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(87, 75, 155, 0.08);
+        box-shadow: 0 8px 16px rgba(87, 75, 155, 0.15);
+    }
+    
+    .target-card:hover::after {
+        opacity: 0.7;
+    }
+    
+    .target-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5;
     }
     
     .priority-low {
-        border-left-color: var(--mint);
+        border-right-color: var(--mint);
+        border-bottom-color: var(--mint);
     }
     
     .priority-medium {
-        border-left-color: var(--periwinkle);
+        border-right-color: var(--periwinkle);
+        border-bottom-color: var(--periwinkle);
     }
     
     .priority-high {
-        border-left-color: var(--periwinkle-dark);
+        border-right-color: var(--periwinkle-dark);
+        border-bottom-color: var(--periwinkle-dark);
     }
     
     .priority-urgent {
-        border-left-color: var(--purple);
+        border-right-color: var(--purple);
+        border-bottom-color: var(--purple);
     }
     
     .target-header {
@@ -49,33 +79,60 @@
         border-bottom: 1px solid var(--cream);
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
     }
     
     .target-header h5 {
         margin-bottom: 0;
-        color: var(--purple);
+        color: #333;
         font-weight: 600;
+        font-size: 1.2rem;
+        line-height: 1.3;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        max-width: 85%;
+    }
+    
+    .target-header-badges {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
     }
     
     .target-content {
         padding: 20px;
         color: #555;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
     
     .target-footer {
         padding: 15px 20px;
-        background-color: var(--cream);
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-top: 1px solid var(--cream);
+        position: relative;
+    }
+    
+    .target-description {
+        margin-bottom: 20px;
+        line-height: 1.5;
+        color: #555;
+        max-height: 100px;
+        overflow: hidden;
+        position: relative;
+        transition: max-height 0.5s ease-out;
+        flex-grow: 1;
     }
     
     .target-meta {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        margin-bottom: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 0;
     }
     
     .target-meta-item {
@@ -85,45 +142,55 @@
         color: #555;
     }
     
+    .target-meta-item.full-width {
+        grid-column: span 2;
+    }
+    
     .target-meta-item i {
-        margin-right: 5px;
+        width: 20px;
+        margin-right: 8px;
         color: var(--periwinkle);
     }
     
     .priority-badge {
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 5px 10px;
+        border-radius: 12px;
         font-size: 0.75rem;
         font-weight: 500;
         display: inline-flex;
         align-items: center;
+        line-height: 1;
     }
     
     .priority-badge-low {
-        background-color: var(--mint);
-        color: #333;
+        background-color: rgba(82, 196, 115, 0.15);
+        color: var(--mint);
     }
     
     .priority-badge-medium {
-        background-color: var(--periwinkle);
-        color: white;
+        background-color: rgba(106, 127, 245, 0.15);
+        color: var(--periwinkle);
     }
     
     .priority-badge-high {
-        background-color: var(--periwinkle-dark);
-        color: white;
+        background-color: rgba(80, 102, 220, 0.15);
+        color: var(--periwinkle-dark);
     }
     
     .priority-badge-urgent {
-        background-color: var(--purple);
-        color: white;
+        background-color: rgba(166, 80, 224, 0.15);
+        color: var(--purple);
     }
     
     .status-badge {
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 5px 10px;
+        border-radius: 12px;
         font-size: 0.75rem;
         font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        line-height: 1;
     }
     
     .status-not-started {
@@ -132,26 +199,26 @@
     }
     
     .status-in-progress {
-        background-color: var(--periwinkle);
-        color: white;
+        background-color: rgba(106, 127, 245, 0.15);
+        color: var(--periwinkle);
     }
     
     .status-completed {
-        background-color: var(--mint);
-        color: #333;
+        background-color: rgba(82, 196, 115, 0.15);
+        color: var(--mint);
     }
     
     .status-blocked {
-        background-color: var(--purple);
-        color: white;
+        background-color: rgba(166, 80, 224, 0.15);
+        color: var(--purple);
     }
     
     .filter-section {
         background: white;
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+        box-shadow: 0 3px 12px rgba(87, 75, 155, 0.08);
     }
     
     .filter-header {
@@ -194,7 +261,7 @@
     }
     
     .filter-btn {
-        border-radius: 6px;
+        border-radius: 12px;
         padding: 6px 12px;
         margin: 0;
         font-size: 0.85rem;
@@ -261,10 +328,11 @@
     
     .search-input {
         padding-left: 40px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid var(--cream);
         box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
         transition: all 0.3s ease;
+        max-width: 250px;
     }
     
     .search-input:focus {
@@ -278,39 +346,94 @@
     }
     
     .assignee-avatar {
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
         background-color: var(--periwinkle);
         color: white;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
-        margin-right: 5px;
+        font-size: 0.75rem;
+        margin-right: 8px;
     }
     
-    .target-description {
-        margin-bottom: 15px;
-        line-height: 1.5;
+    .target-description::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 40px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .target-card:hover .target-description {
+        max-height: 300px;
+    }
+    
+    .target-card:hover .target-description::after {
+        opacity: 0;
     }
     
     .view-details-btn {
-        text-align: center;
-        display: block;
-        padding: 8px;
-        background-color: white;
-        border: 1px solid var(--periwinkle);
-        color: var(--periwinkle);
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: var(--periwinkle);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
         text-decoration: none;
+        position: absolute;
+        width: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(106, 127, 245, 0.4);
+    }
+    
+    .target-card:hover .view-details-btn {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
     }
     
     .view-details-btn:hover {
-        background-color: var(--periwinkle);
-        color: white;
-        text-decoration: none;
+        background-color: var(--purple);
+        box-shadow: 0 6px 20px rgba(106, 127, 245, 0.5);
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+    
+    .view-details-btn i {
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .animate__fadeIn {
+        animation-name: fadeIn;
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 </style>
 {% endblock %}
@@ -337,7 +460,6 @@
     <div class="row">
         <div class="col-md-4 mb-4 mb-md-0">
             <div class="filter-group">
-                <div class="filter-label"><i class="fas fa-search"></i>Search</div>
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="form-control search-input" placeholder="Search targets..." id="target-search">
@@ -380,15 +502,26 @@
 <!-- Targets Grid -->
 <div class="targets-grid">
     {% for target in page_obj %}
-    <div class="target-card priority-{{ target.priority }}" data-target-id="{{ target.id }}" data-status="{{ target.status }}" data-priority="{{ target.priority }}">
+    <div class="target-card priority-{{ target.priority }} animate__fadeIn" data-target-id="{{ target.id }}" data-status="{{ target.status }}" data-priority="{{ target.priority }}" style="animation-delay: {{ forloop.counter|add:'-1' }}0ms;">
         <div class="target-header">
             <h5>{{ target.name }}</h5>
-            <span class="priority-badge priority-badge-{{ target.priority }}">
-                <i class="fas fa-flag me-1"></i>{{ target.get_priority_display }}
-            </span>
+            <div class="target-header-badges">
+                <span class="status-badge status-{{ target.status|slugify }}">
+                    {% if target.status == 'in_progress' %}
+                    <i class="fas fa-circle-notch fa-spin me-1"></i>
+                    {% elif target.status == 'completed' %}
+                    <i class="fas fa-check-circle me-1"></i>
+                    {% elif target.status == 'blocked' %}
+                    <i class="fas fa-exclamation-circle me-1"></i>
+                    {% else %}
+                    <i class="far fa-circle me-1"></i>
+                    {% endif %}
+                    {{ target.get_status_display }}
+                </span>
+            </div>
         </div>
         <div class="target-content">
-            <div class="target-description">{{ target.description|truncatechars:150 }}</div>
+            <div class="target-description">{{ target.description|linebreaksbr }}</div>
             <div class="target-meta">
                 <div class="target-meta-item">
                     <i class="fas fa-calendar-alt"></i>
@@ -399,20 +532,29 @@
                     {% endif %}
                 </div>
                 <div class="target-meta-item">
-                    <i class="fas fa-spinner"></i>
-                    <span class="status-badge status-{{ target.status|slugify }}">{{ target.get_status_display }}</span>
-                </div>
-                <div class="target-meta-item">
                     <i class="fas fa-user"></i>
                     {% if target.assignee %}
-                    <span class="assignee-avatar">{{ target.assignee.username.0|upper }}</span>{{ target.assignee.username }}
+                    <div class="assignee-avatar">{{ target.assignee.username.0|upper }}</div>{{ target.assignee.username }}
                     {% else %}
                     Unassigned
                     {% endif %}
                 </div>
+                {% if target.event %}
+                <div class="target-meta-item full-width">
+                    <i class="fas fa-link"></i>
+                    <a href="{% url 'event_detail' target.event.pk %}">{{ target.event.name }}</a>
+                </div>
+                {% endif %}
             </div>
-            <a href="{% url 'target_detail' target.pk %}" class="view-details-btn mt-2">View Details</a>
         </div>
+        <div class="target-footer">
+            <span class="priority-badge priority-badge-{{ target.priority }}">
+                <i class="fas fa-flag me-1"></i>{{ target.get_priority_display }}
+            </span>
+        </div>
+        <a href="{% url 'target_detail' target.pk %}" class="view-details-btn">
+            <i class="fas fa-eye"></i> View Details
+        </a>
     </div>
     {% empty %}
     <div class="col-12">

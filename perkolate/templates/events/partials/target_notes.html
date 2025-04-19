@@ -1,6 +1,17 @@
 {% load event_tags %}
+<style>
+    @keyframes highlightNew {
+        0% { background-color: #fffacd; }
+        100% { background-color: transparent; }
+    }
+    
+    .new-note {
+        animation: highlightNew 2s ease-in-out;
+    }
+</style>
+
 <!-- Notes Section -->
-<div id="target-notes" class="space-y-4">
+<div id="notes-list-{{ target.id }}" class="space-y-4">
     {% if messages %}
     {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -12,7 +23,7 @@
 
     <!-- Add Note Form -->
     <form class="note-form" hx-post="{% url 'htmx_add_note' pk=target.id %}"
-          hx-target="#target-notes"
+          hx-target="#notes-list-{{ target.id }}"
           hx-swap="outerHTML">
         {% csrf_token %}
         <div class="form-floating mb-3">
@@ -27,7 +38,7 @@
     <!-- Notes List -->
     <div class="mt-4">
         {% for note in notes %}
-        <div class="card mb-3">
+        <div class="card mb-3 {% if forloop.first %}new-note{% endif %}" id="note-{{ note.id }}">
             <div class="card-header d-flex justify-content-between align-items-start">
                 <div>
                     <h5 class="card-title mb-0">{{ note.title }}</h5>

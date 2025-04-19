@@ -506,7 +506,13 @@ def htmx_note_upvote(request, note_id):
     else:
         NoteVote.objects.create(user=user, note=note, vote_type='upvote')
     
-    return render(request, 'events/partials/note_votes.html', {'note': note})
+    # Get user votes for this note
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note=note, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
+    
+    return render(request, 'events/partials/note_votes_update.html', {'note': note, 'user_votes': user_votes})
 
 @login_required
 def htmx_note_downvote(request, note_id):
@@ -523,7 +529,13 @@ def htmx_note_downvote(request, note_id):
     else:
         NoteVote.objects.create(user=user, note=note, vote_type='downvote')
     
-    return render(request, 'events/partials/note_votes.html', {'note': note})
+    # Get user votes for this note
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note=note, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
+    
+    return render(request, 'events/partials/note_votes_update.html', {'note': note, 'user_votes': user_votes})
 
 @login_required
 def htmx_add_comment(request, note_id):

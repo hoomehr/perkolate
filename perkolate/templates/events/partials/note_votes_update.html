@@ -1,0 +1,18 @@
+{% load event_filters %}
+
+<div id="votes-container-{{ note.id }}">
+    <span class="vote-badge upvote-badge {% if user_votes|get_item:note.id == 'upvote' %}active{% endif %}" 
+          hx-post="{% url 'htmx_note_upvote' note_id=note.id %}" 
+          hx-target="#votes-container-{{ note.id }}"
+          hx-swap="outerHTML"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+    </span>
+    <span class="vote-badge downvote-badge {% if user_votes|get_item:note.id == 'downvote' %}active{% endif %}" 
+          hx-post="{% url 'htmx_note_downvote' note_id=note.id %}" 
+          hx-target="#votes-container-{{ note.id }}"
+          hx-swap="outerHTML"
+          hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+        <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+    </span>
+</div> 

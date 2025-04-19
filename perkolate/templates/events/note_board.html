@@ -9,28 +9,48 @@
         margin-top: 20px;
     }
     
+    /* True masonry layout with CSS columns and proper distribution */
     .note-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+        column-count: 3;
+        column-gap: 24px;
+        width: 100%;
+        column-fill: balance; /* Ensures content distributes evenly across columns */
     }
     
+    /* Make cards break properly in the column layout */
     .note-card {
+        display: inline-block; /* Changed from flex to inline-block for better column balancing */
+        width: 100%;
         background-color: white;
         border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
-        transition: all 0.2s ease;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+        break-inside: avoid; /* Prevents cards from breaking across columns */
+        page-break-inside: avoid; /* For older browsers */
         position: relative;
-        border-top: 4px solid var(--periwinkle);
-        border-left: none;
+        border-top: 5px solid var(--periwinkle);
+        overflow: hidden;
+        transform-origin: center top;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+        /* Ensure proper flow */
+        float: none;
+    }
+    
+    /* Inner card content wrapper to maintain flex layout within the card */
+    .note-card-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
     
     .note-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(87, 75, 155, 0.08);
+        z-index: 10;
     }
     
+    /* Card color classes */
     .note-card-blue {
         border-top-color: var(--periwinkle);
     }
@@ -47,26 +67,68 @@
         border-top-color: var(--periwinkle-light);
     }
     
+    .note-card-pink {
+        border-top-color: var(--ios-red);
+    }
+    
+    /* Card header with grey date */
     .note-card-header {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
+        flex-direction: column;
+        margin-bottom: 16px;
     }
     
     .note-card-header span {
         font-weight: 600;
         color: #333;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
     }
     
-    .note-card-content {
-        font-size: 0.95rem;
+    /* Date badge - grey color */
+    .note-card-header small {
+        color: #888; /* Grey text instead of colored badge */
+        font-size: 0.8rem;
+        font-weight: normal;
+        display: inline-block;
+    }
+    
+    /* Content styling with hover expansion */
+    .note-content {
+        font-size: 1rem;
         color: #555;
-        margin-bottom: 16px;
         line-height: 1.5;
+        margin-top: 12px;
+        max-height: 140px; /* Set default height */
+        overflow: hidden;
+        position: relative;
+        transition: max-height 0.5s ease-out;
     }
     
+    .note-content::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .note-card:hover .note-content {
+        max-height: 500px; /* Expand on hover */
+    }
+    
+    .note-card:hover .note-content::after {
+        opacity: 0;
+    }
+    
+    /* Reorganize footer layout */
     .note-card-footer {
         display: flex;
         justify-content: space-between;
@@ -75,44 +137,134 @@
         border-top: 1px solid var(--cream);
         font-size: 0.85rem;
         color: #777;
+        position: relative;
+        margin-top: 12px;
     }
     
-    .note-actions {
+    /* Author badge with avatar-like circle */
+    .note-author {
         display: flex;
-        gap: 8px;
+        align-items: center;
+        z-index: 2;
+        transition: all 0.3s ease;
     }
     
+    .author-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background-color: var(--periwinkle);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-right: 8px;
+    }
+    
+    /* Vote styles and animations */
     .note-votes {
         display: flex;
-        gap: 10px;
+        gap: 8px;
+        position: absolute;
+        left: 0;
+        top: 12px;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+        z-index: 1;
+    }
+    
+    /* Show votes on hover */
+    .note-card:hover .note-votes {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* Move author to right on hover */
+    .note-card:hover .note-author {
+        transform: translateX(100px);
     }
     
     .vote-badge {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 4px;
         padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 0.8rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .vote-badge:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
     }
     
     .upvote-badge {
+        background-color: rgba(82, 196, 115, 0.15);
+        color: var(--mint);
+    }
+    
+    .upvote-badge.active {
         background-color: var(--mint);
-        color: #333;
+        color: white;
+    }
+    
+    .upvote-badge:hover {
+        background-color: rgba(82, 196, 115, 0.3);
     }
     
     .downvote-badge {
+        background-color: rgba(166, 80, 224, 0.15);
+        color: var(--purple);
+    }
+    
+    .downvote-badge.active {
         background-color: var(--purple);
         color: white;
+    }
+    
+    .downvote-badge:hover {
+        background-color: rgba(166, 80, 224, 0.3);
+    }
+    
+    /* Position details button to the right */
+    .view-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background-color: rgba(106, 127, 245, 0.15);
+        color: var(--periwinkle);
+        border: none;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        cursor: pointer;
+        margin-left: auto;
+    }
+    
+    .view-details-btn:hover {
+        background-color: var(--periwinkle);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .view-details-btn i {
+        font-size: 0.8rem;
     }
     
     /* Filter Section Styles */
     .filter-section {
         background: white;
-        border-radius: 12px;
+        border-radius: 16px; /* More rounded */
         padding: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+        box-shadow: 0 3px 12px rgba(87, 75, 155, 0.08);
     }
     
     .filter-header {
@@ -155,7 +307,7 @@
     }
     
     .filter-btn {
-        border-radius: 6px;
+        border-radius: 12px; /* More rounded */
         padding: 6px 12px;
         margin: 0;
         font-size: 0.85rem;
@@ -201,7 +353,7 @@
     
     .search-input {
         padding-left: 40px;
-        border-radius: 8px;
+        border-radius: 12px; /* More rounded */
         border: 1px solid var(--cream);
         box-shadow: 0 2px 5px rgba(87, 75, 155, 0.05);
         transition: all 0.3s ease;
@@ -216,29 +368,92 @@
         text-align: center;
         padding: 40px;
         background-color: var(--cream);
-        border-radius: 12px;
+        border-radius: 16px; /* More rounded */
         grid-column: 1 / -1;
         color: #555;
     }
     
-    .view-details-btn {
+    /* Responsive adjustments for masonry layout */
+    @media (max-width: 1200px) {
+        .note-grid {
+            column-count: 3;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .note-grid {
+            column-count: 2;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .note-grid {
+            column-count: 2;
+            column-gap: 16px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .note-grid {
+            column-count: 1;
+        }
+    }
+    
+    /* Animation for masonry items */
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .animate__fadeIn {
+        animation-name: fadeIn;
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    
+    /* Hidden notes and load more button styles */
+    .hidden-note {
+        display: none !important; /* Use !important to ensure it's hidden */
+    }
+    
+    .load-more-container {
         width: 100%;
-        padding: 8px;
+        text-align: center;
+        padding: 20px 0;
+        grid-column: 1 / -1;
+        break-inside: avoid;
+    }
+    
+    #load-more-btn {
+        padding: 10px 25px;
+        border-radius: 12px;
         background-color: white;
-        border: 1px solid var(--periwinkle);
         color: var(--periwinkle);
-        border-radius: 8px;
+        border: 1px solid var(--periwinkle);
+        font-weight: 500;
         transition: all 0.2s ease;
     }
     
-    .view-details-btn:hover {
+    #load-more-btn:hover {
         background-color: var(--periwinkle);
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(106, 127, 245, 0.2);
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Add CSRF token for HTMX -->
+<div id="csrf-token" data-token="{{ csrf_token }}" class="d-none"></div>
+
 <div class="row mb-4">
     <div class="col-md-8">
         <h2><i class="fas fa-sticky-note"></i> Notes Board</h2>
@@ -260,10 +475,9 @@
     <div class="row">
         <div class="col-md-6 mb-4 mb-md-0">
             <div class="filter-group">
-                <div class="filter-label"><i class="fas fa-search"></i>Search</div>
                 <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" class="form-control search-input" placeholder="Search notes..." id="note-search">
+                    <input type="text" class="form-control search-input" placeholder="Search notes..." id="note-search" style="max-width: 250px;">
                 </div>
             </div>
             
@@ -299,36 +513,54 @@
         
         {% if all_notes %}
             {% for note in all_notes %}
-                {% with colors="blue,green,purple,yellow" %}
-                {% with color_list=colors|split:"," %}
-                {% with note_color=color_list|random %}
-                <div class="note-card note-card-{{ note_color }}" data-note-id="{{ note.id }}" data-user="{{ note.created_by.username }}" data-votes="{{ note.upvotes_count|add:'-'|add:note.downvotes_count }}">
+            <div class="note-card note-card-{% cycle 'blue' 'green' 'purple' 'yellow' 'pink' %} {% if forloop.counter > 15 %}hidden-note{% endif %}" data-note-id="{{ note.id }}" data-user="{{ note.created_by.username }}" data-votes="{{ note.upvotes_count|add:'-'|add:note.downvotes_count }}">
+                <div class="note-card-inner">
                     <div class="note-card-header">
                         <span>{{ note.title }}</span>
-                        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
+                        <small>{{ note.created_at|date:"M d, Y" }}</small>
                     </div>
-                    <div class="note-card-content">
-                        {{ note.content|truncatechars:150 }}
+                    <div class="note-content">
+                        {{ note.content|truncatechars:220 }}
                     </div>
                     <div class="note-card-footer">
-                        <span>By: {{ note.created_by.username }}</span>
-                        <div class="note-votes">
-                            <span class="vote-badge upvote-badge">
-                                <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
-                            </span>
-                            <span class="vote-badge downvote-badge">
-                                <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
-                            </span>
+                        <div class="note-author">
+                            <div class="author-avatar">{{ note.created_by.username|slice:":1" }}</div>
+                            <span>{{ note.created_by.username }}</span>
                         </div>
-                    </div>
-                    <div class="mt-3">
-                        <a href="{% url 'note_detail' note.pk %}" class="view-details-btn">View Details</a>
+                        <div class="note-votes">
+                            <div id="votes-container-{{ note.id }}">
+                                <span class="vote-badge upvote-badge {% if user_votes|get_item:note.id == 'upvote' %}active{% endif %}" 
+                                      hx-post="{% url 'htmx_note_upvote' note_id=note.id %}" 
+                                      hx-target="#votes-container-{{ note.id }}"
+                                      hx-swap="outerHTML"
+                                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                </span>
+                                <span class="vote-badge downvote-badge {% if user_votes|get_item:note.id == 'downvote' %}active{% endif %}" 
+                                      hx-post="{% url 'htmx_note_downvote' note_id=note.id %}" 
+                                      hx-target="#votes-container-{{ note.id }}"
+                                      hx-swap="outerHTML"
+                                      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{% url 'note_detail' note.pk %}" class="view-details-btn">
+                            <i class="fas fa-eye"></i> Details
+                        </a>
                     </div>
                 </div>
-                {% endwith %}
-                {% endwith %}
-                {% endwith %}
+            </div>
             {% endfor %}
+            
+            {% if all_notes.count > 15 %}
+            <div class="load-more-container">
+                <button id="load-more-btn" class="btn btn-outline-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Load More ({{ all_notes.count|add:"-15" }} remaining)
+                </button>
+            </div>
+            {% endif %}
+            
         {% else %}
             <div class="note-empty">
                 <h4>No notes found</h4>
@@ -373,6 +605,67 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Add CSRF headers for all HTMX requests
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            const csrfToken = document.getElementById('csrf-token').getAttribute('data-token');
+            evt.detail.headers['X-CSRFToken'] = csrfToken;
+        });
+        
+        // Track current page and notes per page
+        let currentPage = 1;
+        const notesPerPage = 15; // 5 rows × 3 columns
+        
+        // Enhanced masonry layout with better column balancing
+        function enhanceMasonryLayout() {
+            const grid = document.getElementById('notes-grid');
+            const cards = Array.from(grid.querySelectorAll('.note-card:not(.hidden-note)'));
+            
+            // Apply staggered animations on initial load
+            cards.forEach((card, index) => {
+                // Add randomness to card appearance
+                const delay = 0.05 * index;
+                card.style.animationDelay = `${delay}s`;
+                card.classList.add('animate__fadeIn');
+                
+                // Add subtle random rotation for visual interest (very subtle)
+                const rotation = Math.random() * 0.4 - 0.2; // -0.2 to 0.2 degrees
+                card.style.transform = `rotate(${rotation}deg)`;
+            });
+        }
+        
+        // Force column balancing by detaching and reattaching nodes
+        function forceRebalanceColumns() {
+            const grid = document.getElementById('notes-grid');
+            const cards = Array.from(grid.querySelectorAll('.note-card:not(.hidden-note)'));
+            const loadMoreContainer = document.querySelector('.load-more-container');
+            
+            // Remove all cards temporarily
+            cards.forEach(card => grid.removeChild(card));
+            
+            // Add them back in original order
+            cards.forEach((card, index) => {
+                // Reset animation for reappearance
+                card.style.animationDelay = `${0.05 * index}s`;
+                grid.appendChild(card);
+            });
+            
+            // Move load more button to the end if it exists
+            if (loadMoreContainer) {
+                grid.appendChild(loadMoreContainer);
+            }
+        }
+        
+        // Run initial masonry layout after a slight delay
+        setTimeout(() => {
+            enhanceMasonryLayout();
+            forceRebalanceColumns();
+        }, 100);
+        
+        // Re-run layout when images load or window resizes
+        window.addEventListener('resize', enhanceMasonryLayout);
+        window.addEventListener('load', enhanceMasonryLayout);
+        
+        // Search and filter functionality
         const searchInput = document.getElementById('note-search');
         const userButtons = document.querySelectorAll('.filter-btn-tag');
         const sortButtons = document.querySelectorAll('.filter-btn-sort');
@@ -383,6 +676,7 @@
         
         // Search functionality
         searchInput.addEventListener('input', function() {
+            currentPage = 1; // Reset to first page on new search
             applyFilters();
         });
         
@@ -392,6 +686,7 @@
                 userButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 activeUser = this.getAttribute('data-tag');
+                currentPage = 1; // Reset to first page on new filter
                 applyFilters();
             });
         });
@@ -406,21 +701,22 @@
             });
         });
         
+        // Apply filters and pagination
         function applyFilters() {
             const searchTerm = searchInput.value.toLowerCase();
             const currentUser = '{{ request.user.username }}';
             const notesGrid = document.getElementById('notes-grid');
-            let visibleCount = 0;
             
             // First hide all notes
             allNotes.forEach(note => {
                 note.style.display = 'none';
+                note.classList.remove('hidden-note');
             });
             
-            // Filter and show matching notes
-            allNotes.forEach(note => {
+            // Filter matching notes
+            const matchingNotes = Array.from(allNotes).filter(note => {
                 const title = note.querySelector('.note-card-header span').textContent.toLowerCase();
-                const content = note.querySelector('.note-card-content').textContent.toLowerCase();
+                const content = note.querySelector('.note-content').textContent.toLowerCase();
                 const user = note.getAttribute('data-user');
                 
                 let matchesSearch = title.includes(searchTerm) || content.includes(searchTerm);
@@ -428,42 +724,11 @@
                                 (activeUser === 'me' && user === currentUser) || 
                                 user === activeUser;
                 
-                if (matchesSearch && matchesUser) {
-                    note.style.display = '';
-                    visibleCount++;
-                }
+                return matchesSearch && matchesUser;
             });
             
-            // Show empty state if no notes match filters
-            let emptyState = document.querySelector('.note-empty');
-            if (visibleCount === 0) {
-                if (!emptyState) {
-                    emptyState = document.createElement('div');
-                    emptyState.className = 'note-empty';
-                    emptyState.innerHTML = `
-                        <h4>No notes match your filters</h4>
-                        <p>Try adjusting your search criteria or create a new note.</p>
-                    `;
-                    notesGrid.appendChild(emptyState);
-                }
-                emptyState.style.display = '';
-            } else if (emptyState) {
-                emptyState.style.display = 'none';
-            }
-            
-            // Sort notes
-            sortNotes();
-        }
-        
-        function sortNotes() {
-            const notesGrid = document.getElementById('notes-grid');
-            
-            // Get visible notes
-            const notes = Array.from(allNotes)
-                .filter(note => note.style.display !== 'none');
-            
-            // Sort based on active sort
-            notes.sort((a, b) => {
+            // Sort matching notes
+            matchingNotes.sort((a, b) => {
                 if (activeSort === 'recent') {
                     const dateA = new Date(a.querySelector('.note-card-header small').textContent);
                     const dateB = new Date(b.querySelector('.note-card-header small').textContent);
@@ -480,23 +745,94 @@
                 return 0;
             });
             
-            // Get the empty state element if it exists
-            const emptyState = document.querySelector('.note-empty');
-            if (emptyState) {
-                notesGrid.removeChild(emptyState);
-            }
+            // Calculate pagination
+            const startIdx = (currentPage - 1) * notesPerPage;
+            const endIdx = startIdx + notesPerPage;
+            const notesToShow = matchingNotes.slice(startIdx, endIdx);
             
-            // Clear the grid and reappend in sorted order
-            notesGrid.innerHTML = '';
-            notes.forEach(note => {
-                notesGrid.appendChild(note);
+            // Show only notes for current page
+            notesToShow.forEach(note => {
+                note.style.display = '';
+                note.classList.add('animate__fadeIn');
             });
             
-            // Reappend empty state if needed
-            if (emptyState && notes.length === 0) {
-                notesGrid.appendChild(emptyState);
+            // Show empty state if no notes match filters
+            let emptyState = document.querySelector('.note-empty');
+            if (matchingNotes.length === 0) {
+                if (!emptyState) {
+                    emptyState = document.createElement('div');
+                    emptyState.className = 'note-empty';
+                    emptyState.innerHTML = `
+                        <h4>No notes match your filters</h4>
+                        <p>Try adjusting your search criteria or create a new note.</p>
+                    `;
+                    notesGrid.appendChild(emptyState);
+                }
+                emptyState.style.display = '';
+            } else if (emptyState) {
+                emptyState.style.display = 'none';
             }
+            
+            // Update or remove the load more button based on matching notes
+            let loadMoreContainer = document.querySelector('.load-more-container');
+            const totalPages = Math.ceil(matchingNotes.length / notesPerPage);
+            
+            if (currentPage < totalPages) {
+                if (!loadMoreContainer) {
+                    loadMoreContainer = document.createElement('div');
+                    loadMoreContainer.className = 'load-more-container';
+                    loadMoreContainer.innerHTML = `
+                        <button id="load-more-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Load More (${matchingNotes.length - endIdx} remaining)
+                        </button>
+                    `;
+                    notesGrid.appendChild(loadMoreContainer);
+                    
+                    // Add event listener to the new button
+                    const newLoadMoreBtn = loadMoreContainer.querySelector('#load-more-btn');
+                    addLoadMoreListener(newLoadMoreBtn);
+                } else {
+                    loadMoreContainer.style.display = '';
+                    const loadMoreBtn = loadMoreContainer.querySelector('#load-more-btn');
+                    if (loadMoreBtn) {
+                        loadMoreBtn.innerHTML = `<i class="fas fa-plus-circle me-2"></i>Load More (${matchingNotes.length - endIdx} remaining)`;
+                    }
+                }
+            } else if (loadMoreContainer) {
+                loadMoreContainer.style.display = 'none';
+            }
+            
+            // Force rebalance of columns to ensure proper distribution
+            setTimeout(() => {
+                enhanceMasonryLayout();
+                forceRebalanceColumns();
+            }, 100);
+        }
+        
+        // Add event listener to load more button
+        function addLoadMoreListener(loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                // Increment page and reapply filters to show next batch
+                currentPage++;
+                applyFilters();
+                
+                // Scroll to the top of the newly loaded content
+                const grid = document.getElementById('notes-grid');
+                const visibleCards = grid.querySelectorAll('.note-card:not(.hidden-note)');
+                if (visibleCards.length > 0) {
+                    const lastVisibleCardIndex = visibleCards.length - notesPerPage;
+                    if (lastVisibleCardIndex >= 0) {
+                        visibleCards[lastVisibleCardIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        }
+        
+        // Initialize the load more button
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            addLoadMoreListener(loadMoreBtn);
         }
     });
 </script>
-{% endblock %} 
+{% endblock %}
