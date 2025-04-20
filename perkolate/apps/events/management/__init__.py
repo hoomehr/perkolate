@@ -1,0 +1,1 @@
+# Make the management directory a proper Python package 

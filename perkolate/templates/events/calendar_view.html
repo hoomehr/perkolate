@@ -49,6 +49,26 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 15px;
+        background: white;
+        color: var(--purple);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(87, 75, 155, 0.05);
+    }
+    
+    .calendar-header button {
+        background: none;
+        border: 1px solid var(--periwinkle);
+        color: var(--periwinkle);
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .calendar-header button:hover {
+        background-color: rgba(106, 127, 245, 0.1);
+        transform: translateY(-1px);
     }
     
     .weekly-calendar-view {
@@ -152,10 +172,12 @@
         opacity: 0.8;
     }
     
-    .event.status-open { background-color: var(--purple-haze, #BA7FB2); color: white; }
-    .event.status-in_progress { background-color: var(--fuchsia, #E534BB); color: white; }
-    .event.status-completed { background-color: var(--indigo, #6557D3); color: white; }
-    .event.status-cancelled { background-color: var(--rose-red, #C9184A); color: white; }
+    .event.status-open { background-color: var(--status-planned); color: white; }
+    .event.status-in_progress { background-color: var(--status-in_progress); color: white; }
+    .event.status-completed { background-color: var(--status-completed); color: white; }
+    .event.status-cancelled { background-color: var(--status-cancelled); color: white; }
+    .event.status-not_started { background-color: var(--status-not_started); color: white; }
+    .event.status-blocked { background-color: var(--status-blocked); color: white; }
     
     .calendar-footer {
         margin-top: 15px;

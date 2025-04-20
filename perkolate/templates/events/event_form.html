@@ -2,10 +2,112 @@
 
 {% block title %}{{ action }} Event | Perkolate{% endblock %}
 
+{% block extra_css %}
+<style>
+    .form-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .form-card .card-header {
+        background-color: #508C9B;
+        color: white;
+        border-bottom: none;
+        padding: 20px;
+    }
+    
+    .form-card .card-body {
+        padding: 30px;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #444;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #508C9B;
+        box-shadow: 0 0 0 3px rgba(80, 140, 155, 0.2);
+    }
+    
+    .btn-submit {
+        background-color: #508C9B;
+        color: white;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-submit:hover {
+        background-color: #3e6c78;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(80, 140, 155, 0.3);
+    }
+    
+    .btn-cancel {
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-2px);
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 4px;
+    }
+    
+    /* Style for custom file input */
+    .custom-file-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    input[type="file"] {
+        opacity: 1;
+        width: 100%;
+    }
+    
+    /* Style for fieldset groups */
+    .form-fieldset {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        background-color: #f9f9f9;
+    }
+    
+    .form-fieldset legend {
+        width: auto;
+        padding: 0 10px;
+        margin-bottom: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #508C9B;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
-        <h1><i class="fas fa-calendar-alt"></i> {{ action }} Event</h1>
+        <h1><i class="fas fa-calendar-alt me-2"></i> {{ action }} Event</h1>
         <div class="ios-breadcrumb">
             <a href="{% url 'dashboard' %}" class="ios-breadcrumb-item">Dashboard</a>
             <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
@@ -16,45 +118,140 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <form method="post" novalidate>
-            {% csrf_token %}
-            
-            {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-                {% for error in form.non_field_errors %}
-                {{ error }}
-                {% endfor %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card form-card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-calendar-edit me-2"></i>{{ action }} Event Details</h4>
             </div>
-            {% endif %}
-            
-            {% for field in form %}
-            <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <div class="text-danger mt-1">
-                    {% for error in field.errors %}
-                    <small>{{ error }}</small>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% if field.help_text %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endif %}
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-fieldset">
+                        <legend>Basic Information</legend>
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Event Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.title.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.title.help_text %}
+                            <div class="help-text">{{ form.title.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.description.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.description.help_text %}
+                            <div class="help-text">{{ form.description.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-fieldset">
+                        <legend>Date & Time</legend>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date & Time</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.start_date.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.start_date.help_text %}
+                                <div class="help-text">{{ form.start_date.help_text }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date & Time</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.end_date.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.end_date.help_text %}
+                                <div class="help-text">{{ form.end_date.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-fieldset">
+                        <legend>Additional Details</legend>
+                        <div class="mb-4">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.status.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.status.help_text %}
+                            <div class="help-text">{{ form.status.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Event Image</label>
+                            <div class="custom-file-container">
+                                {{ form.image }}
+                            </div>
+                            {% if form.image.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.image.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.image.help_text %}
+                            <div class="help-text">{{ form.image.help_text }}</div>
+                            {% else %}
+                            <div class="help-text">Upload an image to represent this event. For best results, use an image with 16:9 aspect ratio.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'event_list' %}" class="btn btn-outline-secondary btn-cancel">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-save me-2"></i>Save Event
+                        </button>
+                    </div>
+                </form>
             </div>
-            {% endfor %}
-            
-            <div class="mt-4">
-                <button type="submit" class="btn" style="background-color: var(--indigo); color: white;">
-                    <i class="fas fa-save me-2"></i>Save Event
-                </button>
-                <a href="{% url 'event_list' %}" class="btn btn-outline-secondary ms-2">
-                    <i class="fas fa-times me-2"></i>Cancel
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -62,16 +259,54 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Apply styling to form elements
-        var formControls = document.querySelectorAll('.form-control, .form-select');
-        formControls.forEach(function(element) {
-            element.classList.add('form-control');
-        });
+        // Preview image when selected
+        const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    // Create or update preview
+                    const previewContainer = document.querySelector('.custom-file-container');
+                    let previewElement = document.getElementById('image-preview');
+                    
+                    if (!previewElement) {
+                        previewElement = document.createElement('div');
+                        previewElement.id = 'image-preview';
+                        previewElement.className = 'mt-3';
+                        previewContainer.appendChild(previewElement);
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewElement.innerHTML = `
+                            <div class="card" style="max-width: 300px">
+                                <img src="${e.target.result}" class="card-img-top" style="max-height: 200px; object-fit: cover;">
+                                <div class="card-body p-2">
+                                    <small class="text-muted">${imageInput.files[0].name}</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
         
-        // Add datepicker to date fields if needed
-        var dateFields = document.querySelectorAll('input[type="date"]');
+        // Format the datetime fields for better display
+        const dateFields = document.querySelectorAll('input[type="datetime-local"]');
         dateFields.forEach(function(field) {
-            field.classList.add('form-control');
+            // If field has a value but not in the correct format, fix it
+            if (field.value && !field.value.includes('T')) {
+                const dateObj = new Date(field.value);
+                if (!isNaN(dateObj)) {
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const hours = String(dateObj.getHours()).padStart(2, '0');
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                    
+                    field.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+            }
         });
     });
 </script>

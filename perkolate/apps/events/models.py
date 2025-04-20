@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class Event(models.Model):
     """Model for events in the system"""
@@ -12,14 +13,16 @@ class Event(models.Model):
     ]
     
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    end_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_events')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_events')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     targets = models.ManyToManyField('Target', related_name='events', blank=True)
+    image = models.ImageField(upload_to='event_images/', blank=True, null=True, help_text="Featured image for the event (recommended ratio 2:3)")
+    is_public = models.BooleanField(default=True, help_text="If checked, all users can see this event")
 
     def __str__(self):
         return self.title
@@ -78,6 +81,7 @@ class Note(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     events = models.ManyToManyField(Event, related_name='related_notes', blank=True)
     target = models.ForeignKey('Target', on_delete=models.SET_NULL, related_name='notes', null=True, blank=True)
+    is_public = models.BooleanField(default=True, help_text="If checked, all users can see this note")
     
     def __str__(self):
         return self.title

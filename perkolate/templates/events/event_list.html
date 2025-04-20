@@ -32,10 +32,12 @@
         cursor: pointer;
         padding: 5px 10px;
         border-radius: 5px;
+        transition: all 0.2s ease;
     }
     
     .calendar-nav button:hover {
-        background-color: var(--cream);
+        background-color: rgba(106, 127, 245, 0.1);
+        transform: translateY(-1px);
     }
     
     .calendar-weekdays {
@@ -101,27 +103,27 @@
     
     /* Status-based background colors with new color palette */
     .bg-completed {
-        background-color: var(--mint);
-        color: #333;
+        background-color: #547792;
+        color: white;
     }
     
-    .bg-inprogress {
-        background-color: var(--periwinkle);
+    .bg-inprogress, .bg-in_progress {
+        background-color: #EB5B00;
         color: white;
     }
     
     .bg-planned {
-        background-color: var(--periwinkle-dark);
+        background-color: #640D5F;
         color: white;
     }
     
     .bg-cancelled {
-        background-color: var(--purple);
+        background-color: #D91656;
         color: white;
     }
     
     .bg-primary {
-        background-color: var(--periwinkle);
+        background-color: #508C9B;
         color: white;
     }
     
@@ -212,9 +214,29 @@
     }
     
     /* Status filter buttons */
-    .filter-btn-status.active {
-        background-color: var(--periwinkle);
-        border-color: var(--periwinkle);
+    .filter-btn-status.active[data-filter="planned"] {
+        background-color: #640D5F;
+        border-color: #640D5F;
+    }
+    
+    .filter-btn-status.active[data-filter="in_progress"] {
+        background-color: #EB5B00;
+        border-color: #EB5B00;
+    }
+    
+    .filter-btn-status.active[data-filter="completed"] {
+        background-color: #547792;
+        border-color: #547792;
+    }
+    
+    .filter-btn-status.active[data-filter="cancelled"] {
+        background-color: #D91656;
+        border-color: #D91656;
+    }
+    
+    .filter-btn-status.active[data-filter="all"] {
+        background-color: #508C9B;
+        border-color: #508C9B;
     }
     
     /* Date filter buttons */
@@ -274,6 +296,50 @@
         <a href="{% url 'event_create' %}" class="btn btn-primary">
             <i class="fas fa-plus"></i> New Event
         </a>
+    </div>
+</div>
+
+<!-- Featured Events Section -->
+<div class="card mb-4">
+    <div class="card-header bg-dark-gray text-white">
+        <h5 class="m-0"><i class="fas fa-star me-2"></i>Featured Events</h5>
+    </div>
+    <div class="card-body">
+        {% if featured_events %}
+        <div class="row">
+            {% for event in featured_events %}
+            <div class="col-md-4">
+                <div class="event-card h-100 shadow-sm">
+                    <div class="position-relative">
+                        {% if event.image %}
+                        <img src="{{ event.image.url }}" class="event-image" alt="{{ event.title }}">
+                        {% else %}
+                        <div class="bg-light d-flex justify-content-center align-items-center event-image">
+                            <i class="fas fa-calendar-alt fa-4x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <span class="badge bg-{{ event.status|cut:'_' }} position-absolute top-0 end-0 m-2">{{ event.get_status_display }}</span>
+                    </div>
+                    <div class="event-content">
+                        <h5 class="event-title">{{ event.title }}</h5>
+                        <p class="event-date text-muted small">
+                            <i class="fas fa-clock me-1"></i>{{ event.start_date|date:"M d, Y" }}
+                            {% if event.end_date %} - {{ event.end_date|date:"M d, Y" }}{% endif %}
+                        </p>
+                        <p class="event-description">{{ event.description|truncatechars:100 }}</p>
+                    </div>
+                    <a href="{% url 'event_detail' event.pk %}" class="view-details-btn">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">No featured events available. Upload images to your events to see them featured here!</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 

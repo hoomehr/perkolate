@@ -2,10 +2,139 @@
 
 {% block title %}{{ action }} Target | Perkolate{% endblock %}
 
+{% block extra_css %}
+<style>
+    .form-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .form-card .card-header {
+        background-color: #508C9B;
+        color: white;
+        border-bottom: none;
+        padding: 20px;
+    }
+    
+    .form-card .card-body {
+        padding: 30px;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #444;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+        width: 100%; /* Ensure full width for form controls */
+    }
+    
+    textarea.form-control {
+        min-height: 120px; /* Ensure textareas are tall enough */
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #508C9B;
+        box-shadow: 0 0 0 0.25rem rgba(80, 140, 155, 0.25);
+    }
+    
+    .btn-submit {
+        background-color: #508C9B;
+        color: white;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-submit:hover {
+        background-color: #3e6c78;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(80, 140, 155, 0.3);
+    }
+    
+    .btn-cancel {
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-2px);
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 4px;
+    }
+    
+    /* Style for fieldset groups */
+    .form-fieldset {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+        background-color: #f9f9f9;
+    }
+    
+    .form-fieldset legend {
+        width: auto;
+        padding: 0 10px;
+        margin-bottom: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #508C9B;
+    }
+    
+    /* Add icons to form fields */
+    .input-icon-wrapper {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        z-index: 2;
+    }
+    
+    /* Improve animation and hover effects */
+    .form-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .form-check-input:checked {
+        background-color: #508C9B;
+        border-color: #508C9B;
+    }
+    
+    .text-primary {
+        color: #508C9B !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-md-8">
-        <h1><i class="fas fa-bullseye"></i> {{ action }} Target</h1>
+        <h1><i class="fas fa-bullseye me-2"></i> {{ action }} Target</h1>
         <div class="ios-breadcrumb">
             <a href="{% url 'dashboard' %}" class="ios-breadcrumb-item">Dashboard</a>
             <span class="ios-breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
@@ -16,7 +145,12 @@
     </div>
 </div>
 
-<div class="card">
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card form-card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-bullseye me-2"></i>{{ action }} Target Details</h4>
+            </div>
     <div class="card-body">
         <form method="post" novalidate>
             {% csrf_token %}
@@ -29,32 +163,145 @@
             </div>
             {% endif %}
             
-            {% for field in form %}
-            <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
+                    <div class="form-fieldset">
+                        <legend><i class="fas fa-info-circle me-2"></i>Basic Information</legend>
+                        <div class="mb-4">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Target Name</label>
+                            <div class="input-icon-wrapper">
+                                {{ form.name }}
+                                <div class="input-icon"><i class="fas fa-tag"></i></div>
+                            </div>
+                            {% if form.name.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.name.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.name.help_text %}
+                            <div class="help-text">{{ form.name.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.description.errors %}
+                                <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.description.help_text %}
+                            <div class="help-text">{{ form.description.help_text }}</div>
+                            {% else %}
+                            <div class="help-text">Provide a detailed description of this target.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-fieldset">
+                        <legend><i class="fas fa-tasks me-2"></i>Status & Priority</legend>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                <div class="input-icon-wrapper">
+                                    {{ form.status }}
+                                    <div class="input-icon"><i class="fas fa-flag"></i></div>
+                                </div>
+                                {% if form.status.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.status.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.status.help_text %}
+                                <div class="help-text">{{ form.status.help_text }}</div>
+                                {% else %}
+                                <div class="help-text">Current progress status of this target.</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                                <div class="input-icon-wrapper">
+                                    {{ form.priority }}
+                                    <div class="input-icon"><i class="fas fa-exclamation-circle"></i></div>
+                                </div>
+                                {% if form.priority.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.priority.errors %}
+                                    <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.priority.help_text %}
+                                <div class="help-text">{{ form.priority.help_text }}</div>
+                                {% else %}
+                                <div class="help-text">Set the importance level of this target.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-fieldset">
+                        <legend><i class="fas fa-user-check me-2"></i>Assignment & Due Date</legend>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.assignee.id_for_label }}" class="form-label">Assigned To</label>
+                                <div class="input-icon-wrapper">
+                                    {{ form.assignee }}
+                                    <div class="input-icon"><i class="fas fa-user"></i></div>
+                                </div>
+                                {% if form.assignee.errors %}
                 <div class="text-danger mt-1">
-                    {% for error in field.errors %}
+                                    {% for error in form.assignee.errors %}
                     <small>{{ error }}</small>
                     {% endfor %}
                 </div>
                 {% endif %}
-                {% if field.help_text %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% if form.assignee.help_text %}
+                                <div class="help-text">{{ form.assignee.help_text }}</div>
+                                {% else %}
+                                <div class="help-text">Select a user responsible for completing this target.</div>
                 {% endif %}
             </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                                <div class="input-icon-wrapper">
+                                    {{ form.due_date }}
+                                    <div class="input-icon"><i class="fas fa-calendar-alt"></i></div>
+                                </div>
+                                {% if form.due_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.due_date.errors %}
+                                    <small>{{ error }}</small>
             {% endfor %}
-            
-            <div class="mt-4">
-                <button type="submit" class="btn" style="background-color: var(--purple-haze); color: white;">
+                                </div>
+                                {% endif %}
+                                {% if form.due_date.help_text %}
+                                <div class="help-text">{{ form.due_date.help_text }}</div>
+                                {% else %}
+                                <div class="help-text">Deadline by which this target should be completed.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'target_list' %}" class="btn btn-outline-secondary btn-cancel">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-submit">
                     <i class="fas fa-save me-2"></i>Save Target
                 </button>
-                <a href="{% url 'target_list' %}" class="btn btn-outline-secondary ms-2">
-                    <i class="fas fa-times me-2"></i>Cancel
-                </a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -63,10 +310,30 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Apply styling to form elements
-        var formControls = document.querySelectorAll('.form-control, .form-select');
+        var formControls = document.querySelectorAll('input, select, textarea');
         formControls.forEach(function(element) {
+            if (element.type !== 'hidden' && element.type !== 'submit') {
             element.classList.add('form-control');
+            }
         });
+        
+        // Add animation to fieldsets
+        var fieldsets = document.querySelectorAll('.form-fieldset');
+        fieldsets.forEach(function(fieldset, index) {
+            fieldset.style.transitionDelay = (index * 0.1) + 's';
+            fieldset.classList.add('animate__animated', 'animate__fadeInUp');
+        });
+        
+        // Enhance date input
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            dateInput.addEventListener('focus', (e) => {
+                e.target.style.borderColor = '#508C9B';
+            });
+            dateInput.addEventListener('blur', (e) => {
+                e.target.style.borderColor = '#e0e0e0';
+            });
+        }
     });
 </script>
 {% endblock %} 

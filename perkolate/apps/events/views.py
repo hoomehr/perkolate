@@ -10,27 +10,51 @@ from .models import Event, Target, Note, NoteVote, Comment
 from .forms import EventForm, TargetForm, NoteForm
 from datetime import datetime, date, timedelta
 import json
+from django.db.models import Q
 
 User = get_user_model()
 
 @login_required
 def dashboard(request):
-    """Main dashboard view showing events and targets"""
-    events = Event.objects.all()
-    targets = Target.objects.all()
-    notes = Note.objects.all()[:3]  # Show only 3 most recent notes
+    """User dashboard with overview of recent items"""
+    # Get recent events
+    events = Event.objects.filter(
+        Q(created_by=request.user) | Q(is_public=True)
+    ).order_by('-created_at')[:6]
     
-    # For admin users, show all events/targets
-    # For regular users, only show their own events and assigned targets
-    if not request.user.is_staff and not hasattr(request.user, 'profile') and request.user.profile.role != 'admin':
-        events = events.filter(created_by=request.user)
-        targets = Target.objects.filter(assignee=request.user) | Target.objects.filter(created_by=request.user)
+    # Get active targets
+    # For admin users, show all targets (limited to 6)
+    # For regular users, only show their own targets and assigned targets
+    if request.user.is_staff or (hasattr(request.user, 'profile') and request.user.profile.role == 'admin'):
+        targets = Target.objects.filter(
+            ~Q(status='completed'),
+            ~Q(status='cancelled')
+        ).order_by('-created_at')[:6]
+    else:
+        targets = Target.objects.filter(
+            Q(created_by=request.user) | Q(assignee=request.user),
+            ~Q(status='completed'),
+            ~Q(status='cancelled')
+        ).order_by('-created_at')[:6]
+    
+    # Get recent notes
+    notes = Note.objects.filter(
+        Q(created_by=request.user) | Q(is_public=True)
+    ).order_by('-created_at')[:6]
+    
+    # Get user votes for notes
+    user_votes = {}
+    if request.user.is_authenticated:
+        votes = NoteVote.objects.filter(note__in=notes, user=request.user)
+        user_votes = {vote.note_id: vote.vote_type for vote in votes}
     
     context = {
-        'events': events[:5],  # Show only 5 most recent events
-        'targets': targets[:5],  # Show only 5 most recent targets
-        'notes': notes,  # Show recent notes
+        'events': events,
+        'targets': targets,
+        'notes': notes,
+        'user_votes': user_votes,
     }
+    
     return render(request, 'events/dashboard.html', context)
 
 # Event Views
@@ -41,15 +65,22 @@ def event_list(request):
     # For regular users, only show their own events
     if request.user.is_staff or (hasattr(request.user, 'profile') and request.user.profile.role == 'admin'):
         events = Event.objects.all()
+        # Get featured events (3 most recent with images)
+        featured_events = Event.objects.exclude(image='').order_by('-created_at')[:3]
     else:
         events = Event.objects.filter(created_by=request.user)
+        # Get featured events (3 most recent with images created by user)
+        featured_events = Event.objects.filter(created_by=request.user).exclude(image='').order_by('-created_at')[:3]
     
     # Set up pagination
     paginator = Paginator(events, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'events/event_list.html', {'page_obj': page_obj})
+    return render(request, 'events/event_list.html', {
+        'page_obj': page_obj,
+        'featured_events': featured_events
+    })
 
 @login_required
 def event_detail(request, pk):
@@ -77,7 +108,7 @@ def event_detail(request, pk):
 def event_create(request):
     """Create a new event"""
     if request.method == 'POST':
-        form = EventForm(request.POST)
+        form = EventForm(request.POST, request.FILES)
         if form.is_valid():
             event = form.save(commit=False)
             event.created_by = request.user
@@ -100,7 +131,7 @@ def event_update(request, pk):
         return redirect('event_detail', pk=event.pk)
     
     if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
+        form = EventForm(request.POST, request.FILES, instance=event)
         if form.is_valid():
             form.save()
             messages.success(request, 'Event updated successfully!')

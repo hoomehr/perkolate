@@ -53,6 +53,199 @@
         transform: translateY(0);
     }
     
+    /* Note card styles */
+    .note-grid {
+        column-count: 2;
+        column-gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .note-card {
+        border-radius: 12px;
+        background: white;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+        break-inside: avoid;
+        border-top: 5px solid var(--periwinkle);
+    }
+    
+    .note-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .note-card-inner {
+        height: 100%;
+        padding: 0;
+    }
+    
+    .note-card-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--cream);
+    }
+    
+    .note-card-header span {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .note-card-header small {
+        color: #777;
+        font-size: 0.8rem;
+    }
+    
+    .note-content {
+        padding: 15px 20px;
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        max-height: none;
+        overflow: visible;
+    }
+    
+    .note-card-footer {
+        padding: 10px 20px;
+        border-top: 1px solid var(--cream);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .note-author {
+        display: flex;
+        align-items: center;
+    }
+    
+    .author-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background-color: var(--periwinkle);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-right: 8px;
+    }
+    
+    /* Card color classes */
+    .note-card-blue {
+        border-top-color: var(--periwinkle);
+    }
+    
+    .note-card-green {
+        border-top-color: var(--mint);
+    }
+    
+    .note-card-purple {
+        border-top-color: var(--purple);
+    }
+    
+    .note-card-yellow {
+        border-top-color: var(--periwinkle-light);
+    }
+    
+    .note-card-pink {
+        border-top-color: var(--ios-red);
+    }
+    
+    /* Vote styles for notes */
+    .note-votes {
+        display: flex;
+        gap: 8px;
+    }
+
+    .vote-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #f0f2f5;
+        color: #555;
+    }
+    
+    .vote-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .upvote-badge {
+        background-color: #f0f2f5;
+        color: #508C9B;
+    }
+    
+    .upvote-badge.active {
+        background-color: #508C9B;
+        color: white;
+    }
+    
+    .upvote-badge:hover {
+        background-color: rgba(80, 140, 155, 0.2);
+    }
+    
+    .downvote-badge {
+        background-color: #f0f2f5;
+        color: #508C9B;
+    }
+    
+    .downvote-badge.active {
+        background-color: #508C9B;
+        color: white;
+    }
+    
+    .downvote-badge:hover {
+        background-color: rgba(80, 140, 155, 0.2);
+    }
+    
+    /* Position details button to the right */
+    .view-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background-color: rgba(106, 127, 245, 0.15);
+        color: #6A7FF5;
+        border: none;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        cursor: pointer;
+        margin-left: auto;
+    }
+    
+    .view-details-btn:hover {
+        background-color: #6A7FF5;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .view-details-btn i {
+        font-size: 0.8rem;
+    }
+    
+    /* Responsive adjustments for masonry layout */
+    @media (max-width: 768px) {
+        .note-grid {
+            column-count: 1;
+        }
+    }
+    
     /* Calendar styles */
     .calendar-container {
         background: white;
@@ -62,13 +255,30 @@
         overflow: hidden;
     }
     .calendar-header {
-        background: var(--fuchsia);
-        color: white;
+        background: white;
+        color: var(--purple);
         padding: 15px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
+    
+    .calendar-header button {
+        background: none;
+        border: none;
+        color: var(--periwinkle);
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .calendar-header button:hover {
+        background-color: rgba(106, 127, 245, 0.1);
+        transform: translateY(-1px);
+    }
+    
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -116,7 +326,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        background-color: var(--fuchsia);
         color: white;
         cursor: pointer;
         transition: transform 0.2s;
@@ -124,15 +333,19 @@
     }
     
     .calendar-event-mini.priority-high {
-        background-color: var(--rose-red);
+        background-color: #D91656;
     }
     
     .calendar-event-mini.priority-medium {
-        background-color: var(--fuchsia);
+        background-color: #EB5B00;
     }
     
     .calendar-event-mini.priority-low {
-        background-color: var(--purple-haze);
+        background-color: #547792;
+    }
+    
+    .calendar-event-mini.priority-default {
+        background-color: #640D5F;
     }
     
     .calendar-event-mini:hover {
@@ -143,8 +356,8 @@
     .calendar-more-events {
         font-size: 0.65rem;
         text-align: center;
-        color: var(--indigo);
-        background-color: rgba(67, 47, 112, 0.1);
+        color: #640D5F;
+        background-color: rgba(100, 13, 95, 0.1);
         border-radius: 3px;
         padding: 2px;
         margin-top: 2px;
@@ -152,15 +365,15 @@
     }
     
     .event-priority-high {
-        background-color: var(--rose-red);
+        background-color: #D91656;
         color: white;
     }
     .event-priority-medium {
-        background-color: var(--fuchsia);
+        background-color: #EB5B00;
         color: white;
     }
     .event-priority-low {
-        background-color: var(--purple-haze);
+        background-color: #547792;
         color: white;
     }
     .event-tooltip {
@@ -172,6 +385,321 @@
         z-index: 100;
         width: 200px;
         display: none;
+    }
+    .target-detail-btn {
+        padding: 6px 12px;
+        background-color: #508C9B;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .target-detail-btn:hover {
+        background-color: #3e6c78;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(80, 140, 155, 0.3);
+    }
+    
+    /* Target card styling improvements */
+    .target-card {
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.15); /* Light glowing black shadow */
+        transition: all 0.3s ease;
+        height: 100%;
+        min-height: 160px;
+        background: white;
+        border: none;
+        position: relative;
+        overflow: hidden !important;
+        transform-origin: center top;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        margin: 0;
+        isolation: isolate;
+    }
+    
+    .target-card:hover {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.25); /* Darker glowing shadow on hover */
+        transform: translateY(-3px);
+    }
+    
+    /* Target priority styles with left border instead of right/bottom borders */
+    .priority-low {
+        border-left: 5px solid #28C76F;
+    }
+    
+    .priority-medium {
+        border-left: 5px solid #FF9F43;
+    }
+    
+    .priority-high {
+        border-left: 5px solid #EA5455;
+    }
+    
+    .priority-urgent {
+        border-left: 5px solid #7367F0;
+    }
+    
+    .target-header {
+        padding: 15px 20px 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .target-header h5 {
+        margin-bottom: 0;
+        color: #333;
+        font-weight: 600;
+        font-size: 1.1rem;
+        line-height: 1.3;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        max-width: 80%;
+    }
+    
+    .target-header-badges {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    
+    .target-content {
+        padding: 15px 20px;
+        color: #555;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        position: relative;
+    }
+    
+    .target-footer {
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: none;
+        position: relative;
+        flex-shrink: 0;
+    }
+    
+    .target-description {
+        margin-bottom: 12px;
+        line-height: 1.5;
+        color: #555;
+        max-height: 80px;
+        overflow: auto;
+        position: relative;
+        transition: max-height 0.5s ease-out;
+        flex-grow: 1;
+    }
+    
+    .target-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 0;
+    }
+    
+    .target-meta-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.85rem;
+        color: #555;
+    }
+    
+    .target-meta-item.full-width {
+        grid-column: span 2;
+    }
+    
+    .target-meta-item i {
+        width: 20px;
+        margin-right: 8px;
+        color: var(--periwinkle);
+    }
+    
+    /* Update priority badges with consistent styling */
+    .priority-badge {
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        line-height: 1;
+    }
+    
+    .priority-badge-low {
+        background-color: rgba(40, 199, 111, 0.2);
+        color: #28C76F;
+    }
+    
+    .priority-badge-medium {
+        background-color: rgba(255, 159, 67, 0.2);
+        color: #FF9F43;
+    }
+    
+    .priority-badge-high {
+        background-color: rgba(234, 84, 85, 0.2);
+        color: #EA5455;
+    }
+    
+    .priority-badge-urgent {
+        background-color: rgba(115, 103, 240, 0.2);
+        color: #7367F0;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        line-height: 1;
+    }
+    
+    .status-not-started {
+        background-color: rgba(75, 75, 75, 0.15);
+        color: var(--status-not_started);
+    }
+    
+    .status-in-progress {
+        background-color: rgba(255, 159, 67, 0.15);
+        color: var(--status-in_progress);
+    }
+    
+    .status-completed {
+        background-color: rgba(40, 199, 111, 0.15);
+        color: var(--status-completed);
+    }
+    
+    .status-blocked {
+        background-color: rgba(115, 103, 240, 0.15);
+        color: var(--status-blocked);
+    }
+    
+    .target-view-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: #508C9B;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+    }
+    
+    .target-view-btn:hover {
+        background-color: #3e6c78;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(80, 140, 155, 0.3);
+    }
+    
+    .target-view-btn i {
+        font-size: 0.9rem;
+    }
+    
+    /* Update priority colors for targets */
+    .priority-high {
+        border-right-color: #EA5455;
+        border-bottom-color: #EA5455;
+    }
+    
+    .priority-medium {
+        border-right-color: #FF9F43;
+        border-bottom-color: #FF9F43;
+    }
+    
+    /* Add background colors for status */
+    .status-not-started {
+        background-color: rgba(75, 75, 75, 0.15);
+        color: var(--status-not_started);
+    }
+    
+    .status-in-progress {
+        background-color: rgba(255, 159, 67, 0.15);
+        color: var(--status-in_progress);
+    }
+    
+    /* Fix date styling - make it more compact */
+    .target-meta-item.date-item {
+        background-color: rgba(200, 200, 200, 0.2);
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        width: fit-content;
+        font-size: 0.8rem;
+    }
+    
+    /* Fix status backgrounds */
+    .status-badge.status-not-started {
+        background-color: rgba(75, 75, 75, 0.2);
+        color: #4B4B4B;
+        padding: 4px 8px;
+    }
+    
+    .status-badge.status-in-progress {
+        background-color: rgba(255, 159, 67, 0.2);
+        color: #FF9F43;
+        padding: 4px 8px;
+    }
+    
+    .status-badge.status-completed {
+        background-color: rgba(40, 199, 111, 0.2);
+        color: #28C76F;
+        padding: 4px 8px;
+    }
+    
+    .status-badge.status-blocked {
+        background-color: rgba(115, 103, 240, 0.2);
+        color: #7367F0;
+        padding: 4px 8px;
+    }
+    
+    /* Note author avatar colors */
+    .note-card.note-card-blue .author-avatar {
+        background-color: #508C9B;
+    }
+    
+    .note-card.note-card-green .author-avatar {
+        background-color: #28C76F;
+    }
+    
+    .note-card.note-card-purple .author-avatar {
+        background-color: #7367F0;
+    }
+    
+    .note-card.note-card-yellow .author-avatar {
+        background-color: #FF9F43;
+    }
+    
+    .note-card.note-card-pink .author-avatar {
+        background-color: #EA5455;
+    }
+    
+    /* Target grid layout */
+    .targets-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+        overflow: visible;
+        position: relative;
     }
 </style>
 {% endblock %}
@@ -195,11 +723,11 @@
     <div class="calendar-header">
         <h4 class="mb-0"><i class="fas fa-calendar me-2"></i>Monthly Calendar</h4>
         <div>
-            <button class="btn btn-sm btn-outline-light me-2" id="prevMonth">
+            <button class="btn btn-sm btn-outline-primary me-2" id="prevMonth">
                 <i class="fas fa-chevron-left"></i>
             </button>
             <span id="currentMonth">{% now "F Y" %}</span>
-            <button class="btn btn-sm btn-outline-light ms-2" id="nextMonth">
+            <button class="btn btn-sm btn-outline-primary ms-2" id="nextMonth">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
@@ -279,12 +807,7 @@
             <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs" id="dashboardTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="true">
-                            <i class="fas fa-calendar-alt me-2"></i>Recent Events
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="targets-tab" data-bs-toggle="tab" data-bs-target="#targets" type="button" role="tab" aria-controls="targets" aria-selected="false">
+                        <button class="nav-link active" id="targets-tab" data-bs-toggle="tab" data-bs-target="#targets" type="button" role="tab" aria-controls="targets" aria-selected="true">
                             <i class="fas fa-bullseye me-2"></i>Active Targets
                         </button>
                     </li>
@@ -293,12 +816,146 @@
                             <i class="fas fa-sticky-note me-2"></i>Latest Notes
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="false">
+                            <i class="fas fa-calendar-alt me-2"></i>Recent Events
+                        </button>
+                    </li>
                 </ul>
             </div>
             <div class="card-body">
                 <div class="tab-content" id="dashboardTabsContent">
+                    <!-- Targets Tab -->
+                    <div class="tab-pane fade show active" id="targets" role="tabpanel" aria-labelledby="targets-tab">
+                        {% if targets %}
+                        <div class="targets-grid">
+                            {% for target in targets %}
+                            <div class="target-card priority-{{ target.priority }}" data-target-id="{{ target.id }}" data-status="{{ target.status }}" data-priority="{{ target.priority }}">
+                                <div class="target-header">
+                                    <h5>{{ target.name }}</h5>
+                                    <div class="target-header-badges">
+                                        <span class="status-badge status-{{ target.status|slugify }}">
+                                            {% if target.status == 'in_progress' %}
+                                            <i class="fas fa-circle-notch fa-spin me-1"></i>
+                                            {% elif target.status == 'completed' %}
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {% elif target.status == 'blocked' %}
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% else %}
+                                            <i class="far fa-circle me-1"></i>
+                                            {% endif %}
+                                            {{ target.get_status_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="target-content">
+                                    <div class="target-description">{{ target.description }}</div>
+                                    <div class="target-meta">
+                                        <div class="target-meta-item date-item">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            {% if target.due_date %}
+                                            {{ target.due_date|date:"M d, Y" }}
+                                            {% else %}
+                                            No deadline
+                                            {% endif %}
+                                        </div>
+                                        <div class="target-meta-item">
+                                            <i class="fas fa-user"></i>
+                                            {% if target.assignee %}
+                                            {{ target.assignee.username }}
+                                            {% else %}
+                                            Unassigned
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="target-footer">
+                                    <span class="priority-badge priority-badge-{{ target.priority }}">
+                                        <i class="fas fa-flag me-1"></i>{{ target.get_priority_display }}
+                                    </span>
+                                    <a href="{% url 'target_detail' target.pk %}" class="target-view-btn">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'target_list' %}" class="btn btn-primary">
+                                <i class="fas fa-list me-2"></i>View All Targets
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <h5>No targets found</h5>
+                            <p class="text-muted mb-3">Create your first target to get started</p>
+                            <a href="{% url 'target_create' %}" class="btn btn-success">Create Target</a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Notes Tab with Card Layout -->
+                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
+                        {% if notes %}
+                        <div class="note-grid">
+                            {% for note in notes %}
+                            <div class="note-card note-card-{% cycle 'blue' 'green' 'purple' 'yellow' 'pink' %}">
+                                <div class="note-card-header">
+                                    <span>{{ note.title }}</span>
+                                    <small>{{ note.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                <div class="note-content">
+                                    {{ note.content }}
+                                </div>
+                                <div class="note-card-footer">
+                                    <div class="note-author">
+                                        <div class="author-avatar">{{ note.created_by.username|slice:":1" }}</div>
+                                        <span>{{ note.created_by.username }}</span>
+                                    </div>
+                                    <div class="note-votes">
+                                        <div id="votes-container-{{ note.id }}">
+                                            <span class="vote-badge upvote-badge {% if user_votes|get_item:note.id == 'upvote' %}active{% endif %}" 
+                                                  hx-post="{% url 'htmx_note_upvote' note_id=note.id %}" 
+                                                  hx-target="#votes-container-{{ note.id }}"
+                                                  hx-swap="outerHTML"
+                                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                                                <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
+                                            </span>
+                                            <span class="vote-badge downvote-badge {% if user_votes|get_item:note.id == 'downvote' %}active{% endif %}" 
+                                                  hx-post="{% url 'htmx_note_downvote' note_id=note.id %}" 
+                                                  hx-target="#votes-container-{{ note.id }}"
+                                                  hx-swap="outerHTML"
+                                                  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+                                                <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'note_board' %}" class="btn btn-primary">
+                                <i class="fas fa-list me-2"></i>View All Notes
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <h5>No notes found</h5>
+                            <p class="text-muted mb-3">Create your first note to get started</p>
+                            <a href="{% url 'note_create' %}" class="btn" style="background-color: var(--fuchsia); color: white;">Create Note</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
                     <!-- Events Tab -->
-                    <div class="tab-pane fade show active" id="events" role="tabpanel" aria-labelledby="events-tab">
+                    <div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
                         {% if events %}
                         <div class="list-group" hx-trigger="load" hx-get="{% url 'event_list' %}" hx-target="this" hx-swap="innerHTML" hx-select=".list-group">
                             {% for event in events %}
@@ -316,7 +973,9 @@
                             {% endfor %}
                         </div>
                         <div class="text-center mt-3">
-                            <a href="{% url 'event_list' %}" class="btn btn-outline-primary">View All Events</a>
+                            <a href="{% url 'event_list' %}" class="btn btn-primary">
+                                <i class="fas fa-list me-2"></i>View All Events
+                            </a>
                         </div>
                         {% else %}
                         <div class="empty-state">
@@ -329,102 +988,6 @@
                         </div>
                         {% endif %}
                     </div>
-
-                    <!-- Targets Tab -->
-                    <div class="tab-pane fade" id="targets" role="tabpanel" aria-labelledby="targets-tab">
-                        {% if targets %}
-                        <div class="list-group" hx-trigger="load" hx-get="{% url 'target_list' %}" hx-target="this" hx-swap="innerHTML" hx-select=".list-group">
-                            {% for target in targets %}
-                            <div class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">{{ target.name }}</h5>
-                                    <small>
-                                        {% if target.due_date %}
-                                        Due: {{ target.due_date|date:"M d, Y" }}
-                                        {% else %}
-                                        No due date
-                                        {% endif %}
-                                    </small>
-                                </div>
-                                <p class="mb-1">{{ target.description|truncatechars:100 }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="badge bg-{{ target.status|cut:'_' }}">{{ target.get_status_display }}</span>
-                                        <span class="badge bg-{{ target.priority }}">{{ target.get_priority_display }}</span>
-                                    </div>
-                                    <div>
-                                        {% if target.assignee %}
-                                        <small class="text-muted me-2">Assigned to: {{ target.assignee.username }}</small>
-                                        {% endif %}
-                                        <a href="{% url 'target_detail' target.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="{% url 'target_list' %}" class="btn btn-outline-success">View All Targets</a>
-                        </div>
-                        {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-bullseye"></i>
-                            </div>
-                            <h5>No targets found</h5>
-                            <p class="text-muted mb-3">Create your first target to get started</p>
-                            <a href="{% url 'target_create' %}" class="btn btn-success">Create Target</a>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Notes Tab with Card Layout -->
-                    <div class="tab-pane fade" id="notes" role="tabpanel" aria-labelledby="notes-tab">
-                        {% if notes %}
-                        <div class="row">
-                            {% for note in notes %}
-                            <div class="col-md-6 mb-3">
-                                <div class="card h-100 note-card-{{ forloop.counter|divisibleby:4|yesno:'indigo,purple-haze,fuchsia,rose-red' }}">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">{{ note.title }}</h5>
-                                        <small class="text-muted">{{ note.created_at|date:"M d, Y" }}</small>
-                                    </div>
-                                    <div class="card-body">
-                                        <p class="card-text">{{ note.content|truncatechars:150 }}</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="badge" style="background-color: var(--indigo) !important;">
-                                                    <i class="fas fa-thumbs-up"></i> {{ note.upvotes_count }}
-                                                </span>
-                                                <span class="badge" style="background-color: var(--rose-red) !important;">
-                                                    <i class="fas fa-thumbs-down"></i> {{ note.downvotes_count }}
-                                                </span>
-                                            </div>
-                                            <small class="text-muted">By: {{ note.created_by.username }}</small>
-                                        </div>
-                                    </div>
-                                    <div class="card-footer bg-transparent text-center">
-                                        <a href="{% url 'note_detail' note.pk %}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View Details
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="{% url 'note_board' %}" class="btn" style="background-color: var(--fuchsia); color: white;">View All Notes</a>
-                        </div>
-                        {% else %}
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-sticky-note"></i>
-                            </div>
-                            <h5>No notes found</h5>
-                            <p class="text-muted mb-3">Create your first note to get started</p>
-                            <a href="{% url 'note_create' %}" class="btn" style="background-color: var(--fuchsia); color: white;">Create Note</a>
-                        </div>
-                        {% endif %}
-                    </div>
                 </div>
             </div>
         </div>
@@ -434,9 +997,65 @@
 
 {% block extra_js %}
 <script>
-    // Initialize monthly calendar
     document.addEventListener('DOMContentLoaded', function() {
-        // Calendar functionality
+        // Initialize monthly calendar when DOM is loaded
+        initializeCalendar();
+        
+        // Tab switching animation enhancement
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
+            tabEl.addEventListener('shown.bs.tab', function(event) {
+                // Focus animation for the newly activated tab
+                const targetPanel = document.querySelector(event.target.getAttribute('data-bs-target'));
+                if (targetPanel) {
+                    targetPanel.classList.add('slide-in');
+                    setTimeout(() => targetPanel.classList.remove('slide-in'), 500);
+                }
+                
+                // Apply note card enhancements when notes tab is shown
+                if (event.target.id === 'notes-tab') {
+                    enhanceNoteCards();
+                }
+            });
+        });
+        
+        // Note card enhancements
+        function enhanceNoteCards() {
+            const noteCards = document.querySelectorAll('.note-card');
+            
+            noteCards.forEach((card, index) => {
+                // Add staggered animation effect
+                const delay = 0.05 * index;
+                card.style.animationDelay = `${delay}s`;
+                
+                // Add subtle random rotation for visual interest
+                const rotation = Math.random() * 0.4 - 0.2; // -0.2 to 0.2 degrees
+                card.style.transform = `rotate(${rotation}deg)`;
+                
+                // Make sure colors of author avatar match the card color
+                const avatar = card.querySelector('.author-avatar');
+                if (avatar) {
+                    if (card.classList.contains('note-card-blue')) {
+                        avatar.style.backgroundColor = 'var(--periwinkle)';
+                    } else if (card.classList.contains('note-card-green')) {
+                        avatar.style.backgroundColor = 'var(--mint)';
+                    } else if (card.classList.contains('note-card-purple')) {
+                        avatar.style.backgroundColor = 'var(--purple)';
+                    } else if (card.classList.contains('note-card-yellow')) {
+                        avatar.style.backgroundColor = 'var(--periwinkle-light)';
+                    } else if (card.classList.contains('note-card-pink')) {
+                        avatar.style.backgroundColor = 'var(--ios-red)';
+                    }
+                }
+            });
+        }
+        
+        // Call enhance note cards on initial load
+        if (document.querySelector('#notes.active')) {
+            enhanceNoteCards();
+        }
+    });
+    
+    function initializeCalendar() {
         const calendarDays = document.getElementById('calendarDays');
         const monthDisplay = document.getElementById('currentMonth');
         const prevMonthBtn = document.getElementById('prevMonth');
@@ -446,69 +1065,9 @@
         let currentMonth = currentDate.getMonth();
         let currentYear = currentDate.getFullYear();
         
-        // Sample dummy events data (would come from backend in real app)
-        const dummyEvents = [
-            { 
-                id: 1, 
-                title: 'Team Meeting', 
-                date: new Date(currentYear, currentMonth, 5),
-                priority: 'high',
-                time: '10:00 AM'
-            },
-            { 
-                id: 2, 
-                title: 'Project Deadline', 
-                date: new Date(currentYear, currentMonth, 10),
-                priority: 'high',
-                time: '3:00 PM'
-            },
-            { 
-                id: 3, 
-                title: 'Lunch with Client', 
-                date: new Date(currentYear, currentMonth, 10),
-                priority: 'medium',
-                time: '12:30 PM'
-            },
-            { 
-                id: 4, 
-                title: 'Weekly Review', 
-                date: new Date(currentYear, currentMonth, 15),
-                priority: 'medium',
-                time: '2:00 PM'
-            },
-            { 
-                id: 5, 
-                title: 'Training Session', 
-                date: new Date(currentYear, currentMonth, 15),
-                priority: 'low',
-                time: '11:00 AM'
-            },
-            { 
-                id: 6, 
-                title: 'Staff Meeting', 
-                date: new Date(currentYear, currentMonth, 15),
-                priority: 'medium',
-                time: '4:00 PM'
-            },
-            { 
-                id: 7, 
-                title: 'Budget Planning', 
-                date: new Date(currentYear, currentMonth, 20),
-                priority: 'high',
-                time: '9:30 AM'
-            },
-            { 
-                id: 8, 
-                title: 'Conference Call', 
-                date: new Date(currentYear, currentMonth, 25),
-                priority: 'low',
-                time: '1:00 PM'
-            }
-        ];
-        
         // Function to get events for a specific day
         function getEventsForDay(year, month, day) {
-            return dummyEvents.filter(event => 
+            return events.filter(event => 
                 event.date.getFullYear() === year && 
                 event.date.getMonth() === month && 
                 event.date.getDate() === day
@@ -524,7 +1083,7 @@
             
             // Update month display
             const monthNames = ["January", "February", "March", "April", "May", "June",
-                               "July", "August", "September", "October", "November", "December"];
+                                "July", "August", "September", "October", "November", "December"];
             monthDisplay.textContent = `${monthNames[month]} ${year}`;
             
             // Get first day of month and total days
@@ -533,6 +1092,9 @@
             
             // Get days from previous month
             const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Define a color palette for events
+            const colorPalette = ['#EB5B00', '#D91656', '#640D5F', '#547792', '#2C8C99', '#9E2B25', '#44633F', '#5D4C46'];
             
             // Previous month days
             for (let i = firstDay - 1; i >= 0; i--) {
@@ -569,28 +1131,38 @@
                     const maxVisibleEvents = 2;
                     const displayedEvents = dayEvents.slice(0, maxVisibleEvents);
                     
-                    displayedEvents.forEach(event => {
+                    displayedEvents.forEach((event, index) => {
                         const eventElement = document.createElement('div');
                         eventElement.className = `calendar-event-mini priority-${event.priority}`;
                         
-                        // Apply vibrant colors based on priority
-                        if (event.priority === 'high') {
-                            eventElement.style.backgroundColor = 'var(--rose-red)';
-                        } else if (event.priority === 'medium') {
-                            eventElement.style.backgroundColor = 'var(--fuchsia)';
-                        } else if (event.priority === 'low') {
-                            eventElement.style.backgroundColor = 'var(--purple-haze)';
-                        } else {
-                            eventElement.style.backgroundColor = 'var(--indigo)';
+                        // Use random color from the palette instead of priority-based color
+                        const colorIndex = (event.id * 3 + index) % colorPalette.length;  // Deterministic but appears random
+                        eventElement.style.backgroundColor = colorPalette[colorIndex];
+                        eventElement.style.color = 'white';
+                        
+                        // Add 'new-event' class if the event was created within the last 7 days
+                        const today = new Date();
+                        const sevenDaysAgo = new Date(today);
+                        sevenDaysAgo.setDate(today.getDate() - 7);
+                        
+                        // Also check for very new events (last 3 days)
+                        const threeDaysAgo = new Date(today);
+                        threeDaysAgo.setDate(today.getDate() - 3);
+                        
+                        if (event.created_at >= sevenDaysAgo) {
+                            eventElement.classList.add('new-event');
+                            
+                            // If it's very new (less than 3 days old)
+                            if (event.created_at >= threeDaysAgo) {
+                                eventElement.classList.add('very-new-event');
+                            }
                         }
                         
-                        eventElement.style.color = 'white';
                         eventElement.innerHTML = `${event.time} - ${event.title}`;
                         eventElement.setAttribute('data-event-id', event.id);
                         
                         eventElement.addEventListener('click', function() {
-                            // In real app, this would navigate to the event detail page
-                            alert(`Viewing event: ${event.title}`);
+                            window.location.href = `/dashboard/events/${event.id}/`;
                         });
                         
                         dayCell.appendChild(eventElement);
@@ -603,11 +1175,38 @@
                         
                         moreElement.addEventListener('click', function(e) {
                             e.stopPropagation();
+                            // Create a list of event links
                             const eventsList = dayEvents.map(event => 
-                                `<div>${event.time} - ${event.title}</div>`
+                                `<a href="/dashboard/events/${event.id}/" class="d-block mb-1 text-decoration-none">${event.time} - ${event.title}</a>`
                             ).join('');
                             
-                            alert(`Events for ${monthNames[month]} ${i}, ${year}:\n\n${eventsList}`);
+                            // Create a modal to show all events for that day
+                            const modalHtml = `
+                                <div class="modal fade" id="eventsModal" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Events for ${monthNames[month]} ${i}, ${year}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                ${eventsList}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Append modal to body if it doesn't exist yet
+                            if (!document.getElementById('eventsModal')) {
+                                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                            } else {
+                                document.getElementById('eventsModal').outerHTML = modalHtml;
+                            }
+                            
+                            // Show the modal
+                            const modal = new bootstrap.Modal(document.getElementById('eventsModal'));
+                            modal.show();
                         });
                         
                         dayCell.appendChild(moreElement);
@@ -634,6 +1233,20 @@
             }
         }
         
+        // Use actual events data
+        const events = [
+            {% for event in events %}
+            { 
+                id: {{ event.id }}, 
+                title: '{{ event.title|escapejs }}', 
+                date: new Date('{{ event.start_date|date:"Y-m-d" }}'),
+                priority: '{{ event.priority|default:"medium" }}',
+                time: '{{ event.start_date|date:"h:i A" }}',
+                created_at: new Date('{{ event.created_at|date:"Y-m-d" }}')
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
         // Initial calendar generation
         generateCalendar(currentMonth, currentYear);
         
@@ -656,18 +1269,6 @@
             }
             generateCalendar(currentMonth, currentYear);
         });
-        
-        // Tab switching animation enhancement
-        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(function(tabEl) {
-            tabEl.addEventListener('shown.bs.tab', function(event) {
-                // Focus animation for the newly activated tab
-                const targetPanel = document.querySelector(event.target.getAttribute('data-bs-target'));
-                if (targetPanel) {
-                    targetPanel.classList.add('slide-in');
-                    setTimeout(() => targetPanel.classList.remove('slide-in'), 500);
-                }
-            });
-        });
-    });
+    }
 </script>
 {% endblock %} 

@@ -36,29 +36,40 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-6">
-                <dl>
-                    <dt>Description</dt>
-                    <dd>{{ event.description }}</dd>
-                    
-                    <dt>Status</dt>
-                    <dd><span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span></dd>
-
-                    <dt>Created By</dt>
-                    <dd>{{ event.created_by.username }}</dd>
-                </dl>
+            {% if event.image %}
+            <div class="col-md-4 mb-4">
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="img-fluid rounded shadow-sm" style="max-height: 300px; object-fit: cover; width: 100%;">
             </div>
-            <div class="col-md-6">
-                <dl>
-                    <dt>Start Date</dt>
-                    <dd>{{ event.start_date|date:"F j, Y" }}</dd>
-                    
-                    <dt>End Date</dt>
-                    <dd>{{ event.end_date|date:"F j, Y"|default:"Not specified" }}</dd>
-                    
-                    <dt>Location</dt>
-                    <dd>{{ event.location|default:"No location specified" }}</dd>
-                </dl>
+            <div class="col-md-8">
+            {% else %}
+            <div class="col-md-12">
+            {% endif %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Description</dt>
+                            <dd>{{ event.description }}</dd>
+                            
+                            <dt>Status</dt>
+                            <dd><span class="badge bg-{{ event.status|cut:'_' }}">{{ event.get_status_display }}</span></dd>
+
+                            <dt>Created By</dt>
+                            <dd>{{ event.created_by.username }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl>
+                            <dt>Start Date</dt>
+                            <dd>{{ event.start_date|date:"F j, Y" }}</dd>
+                            
+                            <dt>End Date</dt>
+                            <dd>{{ event.end_date|date:"F j, Y"|default:"Not specified" }}</dd>
+                            
+                            <dt>Location</dt>
+                            <dd>{{ event.location|default:"No location specified" }}</dd>
+                        </dl>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

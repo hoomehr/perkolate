@@ -6,11 +6,14 @@ class EventForm(forms.ModelForm):
     
     class Meta:
         model = Event
-        fields = ['title', 'description', 'start_date', 'end_date', 'status']
+        fields = ['title', 'description', 'start_date', 'end_date', 'status', 'image']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter event title'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Enter event description'}),
+            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'end_date': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
 class TargetForm(forms.ModelForm):
