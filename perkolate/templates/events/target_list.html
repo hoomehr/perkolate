@@ -502,12 +502,11 @@
     }
     
     .target-timeline-scroll::-webkit-scrollbar-track {
-        background: var(--cream);
-        border-radius: 3px;
+        background: transparent;
     }
     
     .target-timeline-scroll::-webkit-scrollbar-thumb {
-        background: var(--periwinkle);
+        background: rgba(0, 0, 0, 0.5);
         border-radius: 3px;
     }
     
@@ -625,8 +624,69 @@
         margin-top: 5px;
         background-color: #f5f5f5;
         padding: 3px 8px;
-        border-radius: 3px;
+        border-radius: 12px;
         display: inline-block;
+    }
+    
+    .target-timeline-badges {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+        margin-top: 5px;
+    }
+    
+    .target-timeline-status {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    
+    .target-timeline-priority {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    
+    .target-timeline-status-not_started {
+        background-color: var(--cream-dark);
+        color: #333;
+    }
+    
+    .target-timeline-status-in_progress {
+        background-color: rgba(106, 127, 245, 0.15);
+        color: var(--periwinkle);
+    }
+    
+    .target-timeline-status-completed {
+        background-color: rgba(82, 196, 115, 0.15);
+        color: var(--mint);
+    }
+    
+    .target-timeline-status-blocked {
+        background-color: rgba(166, 80, 224, 0.15);
+        color: var(--purple);
+    }
+    
+    .target-timeline-priority-low {
+        background-color: rgba(82, 196, 115, 0.15);
+        color: var(--mint);
+    }
+    
+    .target-timeline-priority-medium {
+        background-color: rgba(106, 127, 245, 0.15);
+        color: var(--periwinkle);
+    }
+    
+    .target-timeline-priority-high {
+        background-color: rgba(80, 102, 220, 0.15);
+        color: var(--periwinkle-dark);
+    }
+    
+    .target-timeline-priority-urgent {
+        background-color: rgba(166, 80, 224, 0.15);
+        color: var(--purple);
     }
     
     .target-timeline-empty {
@@ -671,6 +731,23 @@
                 <a href="{% url 'target_detail' target.id %}" class="target-timeline-card">
                     <div class="target-timeline-title-text">{{ target.name }}</div>
                     <div class="target-timeline-date">{{ target.due_date|date:"M d, Y" }}</div>
+                    <div class="target-timeline-badges">
+                        <span class="target-timeline-status target-timeline-status-{{ target.status }}">
+                            {% if target.status == 'in_progress' %}
+                                <i class="fas fa-circle-notch fa-spin me-1"></i>
+                            {% elif target.status == 'completed' %}
+                                <i class="fas fa-check-circle me-1"></i>
+                            {% elif target.status == 'blocked' %}
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                            {% else %}
+                                <i class="far fa-circle me-1"></i>
+                            {% endif %}
+                            {{ target.get_status_display }}
+                        </span>
+                        <span class="target-timeline-priority target-timeline-priority-{{ target.priority }}">
+                            <i class="fas fa-flag me-1"></i>{{ target.get_priority_display }}
+                        </span>
+                    </div>
                 </a>
             </div>
             {% empty %}
