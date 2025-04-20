@@ -174,7 +174,17 @@ def target_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'events/target_list.html', {'page_obj': page_obj})
+    # Check if there are any targets with due dates
+    has_due_dates = any(target.due_date is not None for target in page_obj)
+    
+    # Get upcoming targets with due dates for the timeline
+    upcoming_targets = Target.objects.filter(due_date__isnull=False).order_by('due_date')
+    
+    return render(request, 'events/target_list.html', {
+        'page_obj': page_obj,
+        'has_due_dates': has_due_dates,
+        'upcoming_targets': upcoming_targets
+    })
 
 @login_required
 def target_detail(request, pk):

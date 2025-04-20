@@ -463,6 +463,184 @@
         animation-fill-mode: both;
         animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
     }
+    
+    /* Add new styles for target timeline */
+    .target-timeline-container {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .target-timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .target-timeline-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--purple);
+    }
+    
+    .target-timeline-scroll {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        position: relative;
+    }
+    
+    .target-timeline-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .target-timeline-scroll::-webkit-scrollbar-track {
+        background: var(--cream);
+        border-radius: 3px;
+    }
+    
+    .target-timeline-scroll::-webkit-scrollbar-thumb {
+        background: var(--periwinkle);
+        border-radius: 3px;
+    }
+    
+    .target-timeline {
+        display: inline-flex;
+        position: relative;
+        min-width: 100%;
+        padding: 20px 0;
+    }
+    
+    .target-timeline::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--cream-dark);
+        z-index: 1;
+    }
+    
+    .target-timeline-item {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 25px;
+        min-width: 150px;
+        z-index: 2;
+    }
+    
+    .target-timeline-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #777;
+        margin-bottom: 15px;
+        z-index: 2;
+    }
+    
+    .target-timeline-dot.priority-low {
+        border-color: #28C76F;
+    }
+    
+    .target-timeline-dot.priority-medium {
+        border-color: #FF9F43;
+    }
+    
+    .target-timeline-dot.priority-high {
+        border-color: #EA5455;
+    }
+    
+    .target-timeline-dot.priority-urgent {
+        border-color: #7367F0;
+    }
+    
+    .target-timeline-dot.status-completed {
+        background-color: #28C76F;
+        border-color: #28C76F;
+    }
+    
+    .target-timeline-dot.status-in_progress {
+        background-color: #FF9F43;
+        border-color: #FF9F43;
+    }
+    
+    .target-timeline-dot.status-blocked {
+        background-color: #EA5455;
+        border-color: #EA5455;
+    }
+    
+    .target-timeline-dot.status-not_started {
+        background-color: #4B4B4B;
+        border-color: #4B4B4B;
+    }
+    
+    .target-timeline-card {
+        background: white;
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-decoration: none;
+    }
+    
+    .target-timeline-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .target-timeline-title-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark-gray);
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-height: 1.3;
+    }
+    
+    .target-timeline-date {
+        font-size: 0.75rem;
+        color: #777;
+        margin-top: 5px;
+        background-color: #f5f5f5;
+        padding: 3px 8px;
+        border-radius: 3px;
+        display: inline-block;
+    }
+    
+    .target-timeline-empty {
+        text-align: center;
+        padding: 15px;
+        color: #777;
+    }
+    
+    @media (max-width: 768px) {
+        .target-timeline-item {
+            margin: 0 15px;
+            min-width: 120px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -476,6 +654,29 @@
         <a href="{% url 'target_create' %}" class="btn btn-primary">
             <i class="fas fa-plus"></i> New Target
         </a>
+    </div>
+</div>
+
+<!-- Target Timeline MOVED HERE -->
+<div class="target-timeline-container">
+    <div class="target-timeline-header">
+        <h3 class="target-timeline-title"><i class="fas fa-stream me-2"></i>Target Timeline</h3>
+    </div>
+    
+    <div class="target-timeline-scroll">
+        <div class="target-timeline">
+            {% for target in upcoming_targets %}
+            <div class="target-timeline-item">
+                <div class="target-timeline-dot {% if target.priority %}priority-{{ target.priority }}{% endif %} {% if target.status %}status-{{ target.status }}{% endif %}"></div>
+                <a href="{% url 'target_detail' target.id %}" class="target-timeline-card">
+                    <div class="target-timeline-title-text">{{ target.name }}</div>
+                    <div class="target-timeline-date">{{ target.due_date|date:"M d, Y" }}</div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="target-timeline-empty">No upcoming targets</div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 
@@ -666,6 +867,7 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Target search and filter functionality
         const searchInput = document.getElementById('target-search');
         const statusButtons = document.querySelectorAll('.filter-btn-status');
         const priorityButtons = document.querySelectorAll('[data-priority]');
@@ -702,21 +904,31 @@
         function applyFilters() {
             const searchTerm = searchInput.value.toLowerCase();
             
-            // Filter the cards
             targetCards.forEach(card => {
                 const title = card.querySelector('.target-header h5').textContent.toLowerCase();
                 const description = card.querySelector('.target-description').textContent.toLowerCase();
                 const status = card.getAttribute('data-status');
                 const priority = card.getAttribute('data-priority');
                 
-                const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
-                const matchesStatus = activeStatus === 'all' || status === activeStatus;
-                const matchesPriority = activePriority === 'all' || priority === activePriority;
+                let matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+                let matchesStatus = activeStatus === 'all' || status === activeStatus;
+                let matchesPriority = activePriority === 'all' || priority === activePriority;
                 
                 if (matchesSearch && matchesStatus && matchesPriority) {
                     card.style.display = '';
                 } else {
                     card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Horizontal scroll with mouse wheel for timeline
+        const timelineScroll = document.querySelector('.target-timeline-scroll');
+        if (timelineScroll) {
+            timelineScroll.addEventListener('wheel', function(e) {
+                if (e.deltaY !== 0) {
+                    e.preventDefault(); // Prevent vertical scrolling
+                    this.scrollLeft += e.deltaY;
                 }
             });
         }
