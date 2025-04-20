@@ -9,6 +9,8 @@
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 24px;
         margin-bottom: 30px;
+        overflow: visible;
+        position: relative;
     }
     
     @media (max-width: 400px) {
@@ -22,19 +24,37 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         height: 100%;
+        min-height: 200px;
         background: white;
         border: none;
         border-right: 5px solid var(--periwinkle);
         border-bottom: 5px solid var(--periwinkle);
         position: relative;
-        overflow: hidden;
+        overflow: hidden !important;
         transform-origin: center top;
         padding: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        margin: 0;
+        isolation: isolate;
     }
     
     .target-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(87, 75, 155, 0.15);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(-3px);
+    }
+    
+    .target-card:hover::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.6);
+        z-index: 5;
+        transition: all 0.3s ease;
     }
     
     .target-card:hover::after {
@@ -105,7 +125,9 @@
         color: #555;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        flex: 1;
+        min-height: 0;
+        position: relative;
     }
     
     .target-footer {
@@ -115,6 +137,7 @@
         align-items: center;
         border-top: 1px solid var(--cream);
         position: relative;
+        flex-shrink: 0;
     }
     
     .target-description {
@@ -393,6 +416,7 @@
         font-weight: 500;
         text-decoration: none;
         position: absolute;
+        max-width: 80%;
         width: auto;
         top: 50%;
         left: 50%;
@@ -400,11 +424,15 @@
         opacity: 0;
         z-index: 10;
         box-shadow: 0 4px 15px rgba(106, 127, 245, 0.4);
+        pointer-events: none;
+        visibility: hidden;
     }
     
     .target-card:hover .view-details-btn {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
+        pointer-events: auto;
+        visibility: visible;
     }
     
     .view-details-btn:hover {
